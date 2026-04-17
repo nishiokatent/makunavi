@@ -173,3 +173,35 @@ aside ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
 }
 .btn-navy:hover  { background: var(--navy-dark); box-shadow: var(--shadow-md); }
 .btn-navy:active { transform: scale(0.97); }
+
+/* =====================================================
+   Mobile — Safe area & bottom-nav helpers
+   ===================================================== */
+
+/* iOS ホームインジケータ分の安全余白 */
+.safe-top    { padding-top:    env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* メインコンテンツ用 — ボトムナビ高さ + safe-area + 余白 */
+.pb-mobile-nav {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom) + 0.5rem);
+}
+@media (min-width: 768px) {
+  .pb-mobile-nav { padding-bottom: 0; }
+}
+
+/* タップしやすい最小サイズ (Apple HIG: 44px / Material: 48px) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* iOSのバウンス無効化 — アプリらしさ */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+/* タップハイライト無効化 */
+a, button {
+  -webkit-tap-highlight-color: transparent;
+}

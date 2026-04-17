@@ -3,6 +3,7 @@ import { type ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import LogoutButton from '@/components/layout/LogoutButton'
 import AppNav from '@/components/layout/AppNav'
+import BottomNav from '@/components/layout/BottomNav'
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient()
@@ -31,14 +32,21 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     ? 'bg-sky-500/20 text-sky-200 border border-sky-500/30'
     : 'bg-white/10 text-blue-200 border border-white/10'
 
+  // モバイル用プランバッジ（白背景向け）
+  const planColorMobile = profile?.is_monitor
+    ? 'bg-amber-50 text-amber-700 border-amber-200'
+    : profile?.plan === 'standard'
+    ? 'bg-sky-50 text-sky-700 border-sky-200'
+    : 'bg-gray-50 text-gray-600 border-gray-200'
+
   const displayName = profile?.display_name || user?.email?.split('@')[0] || ''
   const initials = displayName.slice(0, 2).toUpperCase()
 
   return (
     <div className="flex h-full min-h-screen">
-      {/* ===== サイドバー ===== */}
+      {/* ===== サイドバー（md以上のみ表示） ===== */}
       <aside
-        className="w-56 flex-shrink-0 flex flex-col relative"
+        className="hidden md:flex w-56 flex-shrink-0 flex-col relative"
         style={{
           background: 'linear-gradient(180deg, #0f1d45 0%, #1A2F6E 50%, #1e3578 100%)',
         }}
@@ -62,7 +70,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           href="/dashboard"
           className="relative flex items-center gap-3 px-5 py-5 border-b border-white/10 hover:bg-white/5 transition-colors"
         >
-          {/* テントアイコン */}
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #E8342A, #c42820)' }}
@@ -96,7 +103,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         {/* フッター：ユーザー情報 + ログアウト */}
         <div className="relative px-4 py-4 border-t border-white/10">
           <div className="flex items-center gap-2.5 mb-3">
-            {/* アバター */}
             <div className="w-8 h-8 rounded-full bg-[#E8342A]/80 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
               {initials || '?'}
             </div>
@@ -115,10 +121,48 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      {/* ===== メインコンテンツ ===== */}
-      <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bg-base)' }}>
-        {children}
-      </main>
+      {/* ===== メインエリア ===== */}
+      <div className="flex-1 flex flex-col min-w-0">
+
+        {/* モバイルトップバー（md未満のみ表示） */}
+        <header className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 safe-top">
+          <div className="flex items-center justify-between h-14 px-4">
+            <Link href="/dashboard" className="flex items-center gap-2 active:opacity-60 transition-opacity">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #E8342A, #c42820)' }}
+              >
+                <svg width="17" height="15" viewBox="0 0 22 19" fill="none">
+                  <path d="M11 1 L21 18 H1 Z" fill="white" opacity="0.95"/>
+                  <line x1="11" y1="1" x2="11" y2="18" stroke="rgba(232,52,42,0.5)" strokeWidth="1"/>
+                  <rect x="8.5" y="11" width="5" height="7" rx="0.5" fill="rgba(232,52,42,0.35)"/>
+                </svg>
+              </div>
+              <span
+                className="font-black text-[#1A2F6E] text-sm tracking-wide"
+                style={{ fontFamily: 'Noto Serif JP, serif' }}
+              >
+                幕ナビ
+              </span>
+            </Link>
+
+            <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${planColorMobile}`}>
+              {planLabel}
+            </span>
+          </div>
+        </header>
+
+        {/* メインコンテンツ */}
+        <main
+          className="flex-1 overflow-y-auto pb-mobile-nav"
+          style={{ background: 'var(--bg-base)' }}
+        >
+          {children}
+        </main>
+      </div>
+
+      {/* モバイルボトムナビ */}
+      <BottomNav unreadCount={unreadCount} />
     </div>
   )
 }
