@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { loadMaster } from '@/lib/tenmitsukun/supabase-storage'
 import { PREF_COORDS } from '@/lib/tenmitsukun/locations'
-import { geocodeAddress, fetchForecast, type DailyForecast } from '@/lib/weather/openMeteo'
+import { geocodeAddress, fetchForecast, type DailyForecast, type PeriodForecast } from '@/lib/weather/openMeteo'
 import { wmoToInfo, iconUrl } from '@/lib/weather/wmoIcons'
 
 // 施工注意の閾値
@@ -49,31 +49,38 @@ export default function WeatherCard() {
   if (status === 'no-coord')  return <Shell><GenericNotice text="会社所在地を解析できませんでした。マスタの「会社所在地」を「○○県○○市」のように入力してください。" /></Shell>
   if (status === 'error')     return <Shell><GenericNotice text="天気情報の取得に失敗しました。時間をおいて再度お試しください。" /></Shell>
 
+  const detailDays  = daily.slice(0, 3)  // 今日・明日・明後日
+  const compactDays = daily.slice(3)     // 4日目以降
+
   return (
     <Shell title={`${city}の週間天気`}>
-      <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-        <div className="flex sm:grid sm:grid-cols-7 gap-2 min-w-max sm:min-w-0">
-          {daily.map((d, i) => <DayCard key={d.date} d={d} index={i} />)}
-        </div>
+      {/* 上段：詳細表示3日 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+        {detailDays.map((d, i) => <DetailCard key={d.date} d={d} index={i} />)}
       </div>
+
+      {/* 下段：コンパクト4日 */}
+      {compactDays.length > 0 && (
+        <div className="mt-3 grid grid-cols-4 gap-1.5 sm:gap-2">
+          {compactDays.map((d, i) => <CompactCard key={d.date} d={d} index={i + 3} />)}
+        </div>
+      )}
     </Shell>
   )
 }
 
 // ─────────────────────────────────────────────
-// 1日カード
+// 詳細カード（今日・明日・明後日）
 // ─────────────────────────────────────────────
-function DayCard({ d, index }: { d: DailyForecast; index: number }) {
-  const info     = wmoToInfo(d.weatherCode)
+function DetailCard({ d, index }: { d: DailyForecast; index: number }) {
   const advisory = d.precipProb >= RAIN_TH || d.windMaxMs >= WIND_TH
-  const showWind = info.rainy || d.windMaxMs >= SHOW_WIND
+  const showWind = wmoToInfo(d.weatherCode).rainy || d.windMaxMs >= SHOW_WIND
 
   const dt    = new Date(d.date + 'T00:00:00+09:00')
   const wDays = ['日', '月', '火', '水', '木', '金', '土']
   const wd    = wDays[dt.getDay()]
   const md    = `${dt.getMonth() + 1}/${dt.getDate()}`
-  const dayLabel = index === 0 ? '今日' : index === 1 ? '明日' : wd
-  const isWeekend = dt.getDay() === 0 || dt.getDay() === 6
+  const dayLabel = index === 0 ? '今日' : index === 1 ? '明日' : '明後日'
   const dayColor =
     index === 0 ? 'text-[#1A2F6E]' :
     dt.getDay() === 0 ? 'text-[#E8342A]' :
@@ -82,63 +89,138 @@ function DayCard({ d, index }: { d: DailyForecast; index: number }) {
 
   return (
     <div
-      className={`flex-shrink-0 w-[88px] sm:w-auto rounded-xl border px-2 pt-2.5 pb-2 flex flex-col items-center gap-1 transition-colors ${
+      className={`rounded-xl border px-3 py-3 transition-colors ${
         advisory
           ? 'bg-amber-50/60 border-amber-200'
           : 'bg-white border-gray-100'
       }`}
     >
-      {/* 曜日 */}
-      <div className={`text-[11px] font-bold ${dayColor}`}>{dayLabel}</div>
+      {/* ヘッダー: 日付 */}
+      <div className="flex items-baseline justify-between mb-2">
+        <div className="flex items-baseline gap-1.5">
+          <span className={`text-base font-bold ${dayColor}`}>{dayLabel}</span>
+          <span className="text-[10px] text-gray-400 font-mono">{wd} {md}</span>
+        </div>
+        {advisory && (
+          <span className="inline-flex items-center gap-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
+            <AlertIcon className="w-2.5 h-2.5" />
+            施工注意
+          </span>
+        )}
+      </div>
+
+      {/* 午前/午後 */}
+      <div className="grid grid-cols-2 gap-1.5 mb-2">
+        <PeriodBlock label="午前" period={d.am} />
+        <PeriodBlock label="午後" period={d.pm} />
+      </div>
+
+      {/* 気温と風速 */}
+      <div className="flex items-center justify-between border-t border-gray-100 pt-2 mt-1">
+        <div className="flex items-baseline gap-1.5 font-mono leading-none">
+          <span className="text-base font-bold text-[#E8342A]">{d.tempMax}°</span>
+          <span className="text-gray-300">/</span>
+          <span className="text-xs text-sky-600">{d.tempMin}°</span>
+        </div>
+        {showWind && (
+          <div className={`flex items-center gap-1 text-[11px] font-mono ${
+            d.windMaxMs >= WIND_TH ? 'text-amber-700 font-bold' : 'text-gray-500'
+          }`}>
+            <WindIcon className="w-3 h-3" />
+            {d.windMaxMs.toFixed(1)}<span className="text-[9px] ml-0.5">m/s</span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// 午前 / 午後ブロック
+function PeriodBlock({ label, period }: { label: string; period?: PeriodForecast }) {
+  if (!period) {
+    return (
+      <div className="bg-gray-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
+        <span className="text-[10px] text-gray-400 w-7 flex-shrink-0">{label}</span>
+        <span className="text-[10px] text-gray-300 ml-1">—</span>
+      </div>
+    )
+  }
+  const info = wmoToInfo(period.weatherCode)
+  return (
+    <div className="bg-gray-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
+      <span className="text-[10px] text-gray-500 font-medium w-7 flex-shrink-0">{label}</span>
+      <Image
+        src={iconUrl(info.icon)}
+        alt={info.label}
+        width={28}
+        height={28}
+        unoptimized
+        className="w-7 h-7 flex-shrink-0"
+      />
+      <div className="flex flex-col leading-tight min-w-0">
+        <span className="text-[10px] text-gray-700 font-medium truncate">{info.label}</span>
+        <span className={`text-[10px] font-mono inline-flex items-center gap-0.5 ${
+          period.precipProb >= RAIN_TH ? 'text-sky-700 font-bold' :
+          period.precipProb >= 30      ? 'text-sky-600' :
+          'text-gray-400'
+        }`}>
+          <DropletIcon className="w-2 h-2" />
+          {period.precipProb}%
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────
+// コンパクトカード（4日目以降）
+// ─────────────────────────────────────────────
+function CompactCard({ d, index }: { d: DailyForecast; index: number }) {
+  const info     = wmoToInfo(d.weatherCode)
+  const advisory = d.precipProb >= RAIN_TH || d.windMaxMs >= WIND_TH
+
+  const dt    = new Date(d.date + 'T00:00:00+09:00')
+  const wDays = ['日', '月', '火', '水', '木', '金', '土']
+  const wd    = wDays[dt.getDay()]
+  const md    = `${dt.getMonth() + 1}/${dt.getDate()}`
+  const isWeekend = dt.getDay() === 0 || dt.getDay() === 6
+  const dayColor =
+    dt.getDay() === 0 ? 'text-[#E8342A]' :
+    dt.getDay() === 6 ? 'text-sky-600' :
+    'text-gray-600'
+
+  return (
+    <div
+      className={`rounded-lg border px-1.5 pt-1.5 pb-1.5 flex flex-col items-center gap-0.5 transition-colors ${
+        advisory
+          ? 'bg-amber-50/60 border-amber-200'
+          : 'bg-gray-50/50 border-gray-100'
+      }`}
+    >
+      <div className={`text-[11px] font-bold ${dayColor}`}>{wd}</div>
       <div className={`text-[9px] font-mono ${isWeekend ? dayColor : 'text-gray-400'}`}>{md}</div>
-
-      {/* アイコン */}
-      <div className="w-12 h-12 sm:w-14 sm:h-14 my-0.5 flex items-center justify-center">
-        <Image
-          src={iconUrl(info.icon)}
-          alt={info.label}
-          width={56}
-          height={56}
-          unoptimized
-          className="w-full h-full"
-        />
+      <Image
+        src={iconUrl(info.icon)}
+        alt={info.label}
+        width={36}
+        height={36}
+        unoptimized
+        className="w-8 h-8 sm:w-9 sm:h-9"
+      />
+      <div className="flex items-baseline gap-0.5 font-mono leading-none">
+        <span className="text-[11px] font-bold text-[#E8342A]">{d.tempMax}°</span>
+        <span className="text-[9px] text-sky-600">{d.tempMin}°</span>
       </div>
-
-      {/* 天気ラベル */}
-      <div className="text-[10px] text-gray-600 text-center leading-tight min-h-[12px]">{info.label}</div>
-
-      {/* 気温 */}
-      <div className="flex items-baseline gap-1 font-mono leading-none mt-0.5">
-        <span className="text-sm font-bold text-[#E8342A]">{d.tempMax}°</span>
-        <span className="text-[10px] text-sky-600">{d.tempMin}°</span>
-      </div>
-
-      {/* 降水確率 */}
-      <div className={`flex items-center gap-1 text-[10px] font-mono ${
+      <div className={`flex items-center gap-0.5 text-[9px] font-mono ${
         d.precipProb >= RAIN_TH ? 'text-sky-700 font-bold' :
         d.precipProb >= 30      ? 'text-sky-600' :
         'text-gray-400'
       }`}>
-        <DropletIcon className="w-2.5 h-2.5" />
+        <DropletIcon className="w-2 h-2" />
         {d.precipProb}%
       </div>
-
-      {/* 風速（雨日 or 強風時のみ） */}
-      {showWind && (
-        <div className={`flex items-center gap-1 text-[10px] font-mono ${
-          d.windMaxMs >= WIND_TH ? 'text-amber-700 font-bold' : 'text-gray-500'
-        }`}>
-          <WindIcon className="w-2.5 h-2.5" />
-          {d.windMaxMs.toFixed(1)}<span className="text-[8px] ml-0.5">m/s</span>
-        </div>
-      )}
-
-      {/* 施工注意バッジ */}
       {advisory && (
-        <div className="mt-1 inline-flex items-center gap-0.5 bg-amber-500 text-white text-[9px] font-bold rounded-full px-1.5 py-0.5">
-          <AlertIcon className="w-2.5 h-2.5" />
-          施工注意
-        </div>
+        <div className="w-1.5 h-1.5 rounded-full bg-amber-500" title="施工注意" />
       )}
     </div>
   )
@@ -166,10 +248,17 @@ function Shell({ title, children }: { title?: string; children: React.ReactNode 
 // ─────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div className="grid grid-cols-7 gap-2">
-      {Array.from({ length: 7 }).map((_, i) => (
-        <div key={i} className="h-32 rounded-xl bg-gray-50 animate-pulse" />
-      ))}
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-32 rounded-xl bg-gray-50 animate-pulse" />
+        ))}
+      </div>
+      <div className="grid grid-cols-4 gap-1.5">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-24 rounded-lg bg-gray-50 animate-pulse" />
+        ))}
+      </div>
     </div>
   )
 }
@@ -205,7 +294,7 @@ function GenericNotice({ text }: { text: string }) {
 }
 
 // ─────────────────────────────────────────────
-// インラインSVGアイコン（emoji 不使用）
+// インラインSVGアイコン
 // ─────────────────────────────────────────────
 function DropletIcon({ className = '' }: { className?: string }) {
   return (
