@@ -49,29 +49,19 @@ export default function WeatherCard() {
 
   return (
     <Shell title={`${city}の週間天気`}>
-      {/* スマホ：横スクロール（大3 + 小4） */}
-      <div className="overflow-x-auto -mx-3 px-3 sm:hidden">
-        <div className="flex gap-1.5 min-w-max">
-          {daily.map((d, i) => <DayCard key={d.date} d={d} index={i} large={i < 3} />)}
+      <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+        <div className="flex sm:grid sm:grid-cols-7 gap-2 min-w-max sm:min-w-0">
+          {daily.map((d, i) => <DayCard key={d.date} d={d} index={i} />)}
         </div>
-      </div>
-
-      {/* PC：grid-cols-10 / 大カードはcol-span-2、小カードはcol-span-1 */}
-      <div className="hidden sm:grid sm:grid-cols-10 gap-1.5">
-        {daily.map((d, i) => (
-          <div key={d.date} className={i < 3 ? 'col-span-2' : 'col-span-1'}>
-            <DayCard d={d} index={i} large={i < 3} />
-          </div>
-        ))}
       </div>
     </Shell>
   )
 }
 
 // ─────────────────────────────────────────────
-// 1日カード（large/通常で表現を切り替え）
+// 1日カード（コンパクト＋読みやすさ重視）
 // ─────────────────────────────────────────────
-function DayCard({ d, index, large }: { d: DailyForecast; index: number; large: boolean }) {
+function DayCard({ d, index }: { d: DailyForecast; index: number }) {
   const info     = wmoToInfo(d.weatherCode)
   const advisory = d.precipProb >= RAIN_TH
 
@@ -84,61 +74,50 @@ function DayCard({ d, index, large }: { d: DailyForecast; index: number; large: 
     index === 0 ? 'text-[#1A2F6E]' :
     dt.getDay() === 0 ? 'text-[#E8342A]' :
     dt.getDay() === 6 ? 'text-sky-600' :
-    'text-gray-600'
-
-  // スマホ横スクロール時の固定幅 / PCは親から幅指定
-  const widthCls = large ? 'w-[88px] sm:w-auto' : 'w-[58px] sm:w-auto'
+    'text-gray-700'
 
   return (
     <div
-      className={`flex-shrink-0 ${widthCls} h-full rounded-lg border flex flex-col items-center transition-colors ${
-        large ? 'px-2 py-2 gap-1' : 'px-1 py-1.5 gap-0.5'
-      } ${
-        advisory ? 'bg-amber-50/60 border-amber-200' : 'bg-white border-gray-100'
+      className={`flex-shrink-0 w-[78px] sm:w-auto rounded-xl border-[1.5px] px-1.5 py-2 flex flex-col items-center gap-1 transition-colors ${
+        advisory
+          ? 'bg-amber-50 border-amber-300'
+          : 'bg-white border-gray-200'
       }`}
     >
+      {/* 曜日（大きめ・太字） */}
+      <div className={`text-sm font-black ${dayColor} leading-none`}>{dayLabel}</div>
       {/* 日付 */}
-      <div className="flex items-baseline gap-1 leading-none">
-        <span className={`${large ? 'text-xs' : 'text-[10px]'} font-bold ${dayColor}`}>{dayLabel}</span>
-        <span className={`${large ? 'text-[9px]' : 'text-[8px]'} font-mono text-gray-400`}>{md}</span>
-      </div>
+      <div className="text-[10px] font-mono text-gray-400 leading-none">{md}</div>
 
       {/* アイコン */}
       <Image
         src={iconUrl(info.icon)}
         alt={info.label}
-        width={large ? 56 : 36}
-        height={large ? 56 : 36}
+        width={48}
+        height={48}
         unoptimized
-        className={large ? 'w-12 h-12 sm:w-14 sm:h-14' : 'w-9 h-9'}
+        className="w-11 h-11 my-0.5"
       />
 
-      {/* 天気ラベル（大カードのみ） */}
-      {large && (
-        <div className="text-[10px] text-gray-600 leading-tight text-center">{info.label}</div>
-      )}
-
-      {/* 気温 */}
-      <div className="flex items-baseline gap-0.5 font-mono leading-none">
-        <span className={`${large ? 'text-sm' : 'text-[11px]'} font-bold text-[#E8342A]`}>{d.tempMax}°</span>
-        <span className={`${large ? 'text-[10px]' : 'text-[9px]'} text-sky-600`}>{d.tempMin}°</span>
+      {/* 気温（縦並びで太く） */}
+      <div className="flex items-baseline gap-1 font-mono leading-none">
+        <span className="text-[15px] font-black text-[#E8342A]">{d.tempMax}°</span>
+        <span className="text-[11px] font-semibold text-sky-600">{d.tempMin}°</span>
       </div>
 
       {/* 降水確率 */}
-      <div className={`flex items-center gap-0.5 ${large ? 'text-[10px]' : 'text-[9px]'} font-mono leading-none ${
-        d.precipProb >= RAIN_TH ? 'text-sky-700 font-bold' :
+      <div className={`flex items-center gap-0.5 text-[11px] font-bold font-mono leading-none ${
+        d.precipProb >= RAIN_TH ? 'text-sky-700' :
         d.precipProb >= 30      ? 'text-sky-600' :
         'text-gray-400'
       }`}>
-        <DropletIcon className={large ? 'w-2.5 h-2.5' : 'w-2 h-2'} />
+        <DropletIcon className="w-2.5 h-2.5" />
         {d.precipProb}%
       </div>
 
-      {/* 施工注意 */}
+      {/* 施工注意（雨の日のみ） */}
       {advisory && (
-        <div className={`inline-flex items-center bg-amber-500 text-white font-bold rounded-full leading-none ${
-          large ? 'text-[9px] px-1.5 py-0.5' : 'text-[8px] px-1.5 py-px'
-        }`}>
+        <div className="mt-0.5 inline-flex items-center bg-amber-500 text-white text-[10px] font-black rounded-full px-2 py-0.5 leading-none whitespace-nowrap">
           施工注意
         </div>
       )}
