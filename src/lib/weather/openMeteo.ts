@@ -2,8 +2,8 @@
 // https://open-meteo.com/
 
 const CACHE_TTL_MS = 60 * 60 * 1000  // 1 hour
-const FORECAST_KEY = 'wx_forecast_v2'  // v2: ラベル不具合修正でキャッシュリセット
-const GEO_KEY      = 'wx_geo_v2'       // v2: addressdetails対応でキャッシュリセット
+const FORECAST_KEY = 'wx_forecast_v3'  // v3: state_district対応 (京都市/大阪市など)
+const GEO_KEY      = 'wx_geo_v3'       // v3: state_district対応
 
 export interface DailyForecast {
   date:        string  // YYYY-MM-DD
@@ -50,12 +50,34 @@ function extractCityLabel(address: string): string {
 }
 
 // Nominatim の addressdetails からラベルを組み立て
+// 日本の住所体系では Nominatim は次のように分類することが多い:
+//   - state          → 都道府県 (京都府, 大阪府, 東京都)
+//   - state_district → 政令指定都市・市 (京都市, 大阪市) ← 重要
+//   - city           → 区/町/村 (下京区, 新宿区) または市
+//   - suburb         → 区/町名 (下京区, 中央区)
+//   - city_district  → 区
+//   - town/village   → 町・村
 function labelFromNominatim(addr: Record<string, string>, fallback: string): string {
-  const city  = addr.city  || addr.town  || addr.village || ''
-  const ward  = addr.city_district || addr.suburb || addr.quarter || ''
-  if (city && ward) return `${city}${ward}`
-  if (city)         return city
-  if (ward)         return ward
+  // 市レベル (政令指定都市優先)
+  const cityLevel =
+    addr.state_district ||  // 京都市, 大阪市, 札幌市
+    addr.city ||
+    addr.town ||
+    addr.village ||
+    ''
+  // 区レベル
+  const wardLevel =
+    addr.city_district ||
+    addr.suburb ||
+    addr.quarter ||
+    ''
+
+  // city と ward が同じ場合（東京23区など、cityに「新宿区」が入るケース）
+  if (cityLevel && wardLevel && cityLevel !== wardLevel) {
+    return `${cityLevel}${wardLevel}`
+  }
+  if (cityLevel) return cityLevel
+  if (wardLevel) return wardLevel
   return fallback
 }
 
