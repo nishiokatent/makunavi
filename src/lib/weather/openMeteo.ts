@@ -2,13 +2,8 @@
 // https://open-meteo.com/
 
 const CACHE_TTL_MS = 60 * 60 * 1000  // 1 hour
-const FORECAST_KEY = 'wx_forecast_v4'  // v4: 午前/午後データ追加
+const FORECAST_KEY = 'wx_forecast_v3'  // v3: state_district対応 (京都市/大阪市など)
 const GEO_KEY      = 'wx_geo_v3'       // v3: state_district対応
-
-export interface PeriodForecast {
-  weatherCode: number
-  precipProb:  number  // %
-}
 
 export interface DailyForecast {
   date:        string  // YYYY-MM-DD
@@ -17,8 +12,6 @@ export interface DailyForecast {
   tempMin:     number
   precipProb:  number  // %
   windMaxMs:   number  // m/s
-  am?:         PeriodForecast  // 6:00-12:00
-  pm?:         PeriodForecast  // 12:00-18:00
 }
 
 export interface ForecastBundle {
@@ -129,19 +122,6 @@ export async function geocodeAddress(
   return null
 }
 
-// 天気の「悪さ」を数値化(雨/雪/雷ほど大きい) → 時間帯のweather_codeを統合する際に使用
-function severity(code: number): number {
-  if (code >= 95)              return 100  // 雷雨
-  if (code >= 71 && code <= 86) return 80  // 雪
-  if (code >= 51 && code <= 82) return 70  // 雨
-  if (code === 45 || code === 48) return 50 // 霧
-  if (code === 3)              return 30   // 曇り
-  if (code === 2)              return 20   // 晴れ時々曇り
-  if (code === 1)              return 10   // ほぼ晴れ
-  if (code === 0)              return 5    // 晴れ
-  return 0
-}
-
 // ─────────────────────────────────────────────
 // Forecast (Open-Meteo)
 // ─────────────────────────────────────────────
@@ -161,38 +141,11 @@ export async function fetchForecast(geo: GeoResult): Promise<ForecastBundle> {
     `https://api.open-meteo.com/v1/forecast` +
     `?latitude=${geo.lat}&longitude=${geo.lon}` +
     `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max` +
-    `&hourly=weather_code,precipitation_probability` +
     `&timezone=Asia%2FTokyo&forecast_days=7&wind_speed_unit=ms`
 
   const r = await fetch(url)
   if (!r.ok) throw new Error(`Open-Meteo error ${r.status}`)
   const j = await r.json()
-
-  // 各日の 午前(6:00-12:00) / 午後(12:00-18:00) サマリー
-  const periodByDate: Record<string, { am: PeriodForecast; pm: PeriodForecast }> = {}
-  if (j.hourly?.time) {
-    j.hourly.time.forEach((iso: string, idx: number) => {
-      // iso 例: "2026-04-30T09:00"
-      const date = iso.slice(0, 10)
-      const hour = parseInt(iso.slice(11, 13), 10)
-      if (!periodByDate[date]) {
-        periodByDate[date] = {
-          am: { weatherCode: 0, precipProb: 0 },
-          pm: { weatherCode: 0, precipProb: 0 },
-        }
-      }
-      const wc = j.hourly.weather_code[idx] ?? 0
-      const pp = j.hourly.precipitation_probability[idx] ?? 0
-      const slot =
-        hour >= 6  && hour < 12 ? periodByDate[date].am :
-        hour >= 12 && hour < 18 ? periodByDate[date].pm : null
-      if (!slot) return
-      // 最も悪い天気コード(severity優先)を採用
-      if (severity(wc) > severity(slot.weatherCode)) slot.weatherCode = wc
-      // 降水確率は最大値を採用
-      if (pp > slot.precipProb) slot.precipProb = pp
-    })
-  }
 
   const daily: DailyForecast[] = j.daily.time.map((d: string, i: number) => ({
     date:        d,
@@ -201,8 +154,6 @@ export async function fetchForecast(geo: GeoResult): Promise<ForecastBundle> {
     tempMin:     Math.round(j.daily.temperature_2m_min[i]),
     precipProb:  j.daily.precipitation_probability_max[i] ?? 0,
     windMaxMs:   j.daily.wind_speed_10m_max[i] ?? 0,
-    am:          periodByDate[d]?.am,
-    pm:          periodByDate[d]?.pm,
   }))
 
   const bundle: ForecastBundle = { cityLabel: geo.label, daily, fetchedAt: Date.now() }
