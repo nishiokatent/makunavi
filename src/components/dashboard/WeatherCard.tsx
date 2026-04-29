@@ -87,7 +87,7 @@ function DayCard({ d, index }: { d: DailyForecast; index: number }) {
       {/* 曜日（大きめ・太字） */}
       <div className={`text-sm font-black ${dayColor} leading-none`}>{dayLabel}</div>
       {/* 日付 */}
-      <div className="text-[10px] font-mono text-gray-400 leading-none">{md}</div>
+      <div className="text-[11px] font-bold font-mono text-gray-500 leading-none">{md}</div>
 
       {/* アイコン */}
       <Image
