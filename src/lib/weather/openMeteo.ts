@@ -2,8 +2,8 @@
 // https://open-meteo.com/
 
 const CACHE_TTL_MS = 60 * 60 * 1000  // 1 hour
-const FORECAST_KEY = 'wx_forecast'
-const GEO_KEY      = 'wx_geo_v2'     // v2: addressdetails対応でキャッシュリセット
+const FORECAST_KEY = 'wx_forecast_v2'  // v2: ラベル不具合修正でキャッシュリセット
+const GEO_KEY      = 'wx_geo_v2'       // v2: addressdetails対応でキャッシュリセット
 
 export interface DailyForecast {
   date:        string  // YYYY-MM-DD
