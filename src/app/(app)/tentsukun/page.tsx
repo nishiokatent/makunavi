@@ -1,10 +1,6 @@
-import type { Metadata } from 'next'
-import dynamic from 'next/dynamic'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'てんつ君 | 幕ナビ',
-  description: '生地張替シミュレーター・新調シミュレーター',
-}
+import dynamic from 'next/dynamic'
 
 const TentsukuCanvas = dynamic(
   () => import('@/components/tentsukun/TentsukuCanvas'),
