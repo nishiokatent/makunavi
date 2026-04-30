@@ -828,6 +828,11 @@ function MmInput({ label, value, onChange, placeholder }: {
 // ─────────────────────────────────────────
 // ClientPicker — 得意先名のオートコンプリート
 // ─────────────────────────────────────────
+// 全角文字（ひらがな・全角カタカナ・漢字・全角英数）を含むか
+function hasZenkaku(s: string): boolean {
+  return /[぀-ヿ一-鿿０-ｚ]/.test(s)
+}
+
 function sortClientsByFurigana(clients: Client[]): Client[] {
   return [...clients].sort((a, b) => {
     const ka = (a.furigana || a.name || '').trim()
@@ -1406,7 +1411,7 @@ function MasterTab({ master, onChange, onStartSetup, onEditSample }: {
           <h3 className="text-sm font-bold text-gray-700">得意先マスタ</h3>
           <button onClick={addClient} className="text-xs border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:border-[#1A2F6E] transition-colors">＋ 追加</button>
         </div>
-        <p className="text-xs text-gray-400 mb-3">案件を保存すると自動で追加されます。フリガナを入れるとあいうえお順で並びます。</p>
+        <p className="text-xs text-gray-400 mb-3">案件を保存すると自動で追加されます。フリガナを入れると５０音順で並びます。</p>
         {(() => {
           const sorted = sortClientsByFurigana(localM.clients ?? [])
           if (sorted.length === 0) {
@@ -1416,16 +1421,29 @@ function MasterTab({ master, onChange, onStartSetup, onEditSample }: {
             <div className="space-y-2">
               <div className="grid grid-cols-[1fr_1fr_auto] gap-2 px-1 text-[10px] text-gray-400">
                 <span>得意先名</span>
-                <span>フリガナ</span>
+                <span>フリガナ（半角カナ）</span>
                 <span></span>
               </div>
-              {sorted.map(c => (
-                <div key={c.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-                  <input className={inputCls} value={c.name} onChange={e => updateClient(c.id, 'name', e.target.value)} placeholder="得意先名" />
-                  <input className={inputCls} value={c.furigana} onChange={e => updateClient(c.id, 'furigana', e.target.value)} placeholder="ヤマダショウテン" />
-                  <button onClick={() => deleteClient(c.id)} className="text-xs text-red-400 hover:text-red-600 px-2">削除</button>
-                </div>
-              ))}
+              {sorted.map(c => {
+                const invalid = hasZenkaku(c.furigana)
+                return (
+                  <div key={c.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-start">
+                    <input className={inputCls} value={c.name} onChange={e => updateClient(c.id, 'name', e.target.value)} placeholder="得意先名" />
+                    <div>
+                      <input
+                        className={`${inputCls} ${invalid ? 'border-red-400 bg-red-50' : ''}`}
+                        value={c.furigana}
+                        onChange={e => updateClient(c.id, 'furigana', e.target.value)}
+                        placeholder="ﾔﾏﾀﾞｼｮｳﾃﾝ"
+                      />
+                      {invalid && (
+                        <p className="text-[10px] text-red-500 mt-1">半角カナで入力してください（例：ﾔﾏﾀﾞｼｮｳﾃﾝ）</p>
+                      )}
+                    </div>
+                    <button onClick={() => deleteClient(c.id)} className="text-xs text-red-400 hover:text-red-600 px-2 mt-2">削除</button>
+                  </div>
+                )
+              })}
             </div>
           )
         })()}
