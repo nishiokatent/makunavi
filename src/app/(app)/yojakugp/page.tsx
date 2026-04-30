@@ -198,6 +198,7 @@ export default function YojakuGPPage() {
                 <li>不正解の場合、+{PENALTY_SEC}秒ペナルティ</li>
                 <li>正解するまで次の問題に進めません</li>
                 <li>何度でも挑戦できます</li>
+                <li>計算機の使用は可能です</li>
               </ul>
             </div>
 
