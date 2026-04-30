@@ -162,7 +162,7 @@ export default function AccountSettingsPage() {
           <input
             value={form.display_name}
             onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
-            placeholder="例：西岡 駿生"
+            placeholder="例：テント太郎"
             className="input-base"
           />
         </Field>
@@ -171,7 +171,7 @@ export default function AccountSettingsPage() {
             <input
               value={form.company_name}
               onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}
-              placeholder="例：西岡テント"
+              placeholder="例：○○テント"
               className="input-base flex-1"
             />
             <VisibleToggle

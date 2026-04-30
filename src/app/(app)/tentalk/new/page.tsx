@@ -374,7 +374,7 @@ export default function NewPostPage() {
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSaveName()}
-              placeholder="例：山田太郎 / 西岡テント / テント職人K"
+              placeholder="例：テント太郎 / ○○テント / テント職人"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1A2F6E]"
               autoFocus
             />

@@ -976,7 +976,7 @@ function EstTab({
         <div className="grid grid-cols-2 gap-3 mt-3">
           <div>
             <label className="block text-xs text-gray-500 mb-1">案件名</label>
-            <input className={selCls} value={caseName} onChange={e => setCaseName(e.target.value)} placeholder="例：西岡商店街テント" />
+            <input className={selCls} value={caseName} onChange={e => setCaseName(e.target.value)} placeholder="例：○○商店街テント" />
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">得意先名</label>
@@ -1399,7 +1399,7 @@ function MasterTab({ master, onChange, onStartSetup, onEditSample }: {
       <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
         <h3 className="text-sm font-bold text-gray-700 mb-4">会社情報</h3>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className={labelCls}>会社名</label><input className={inputCls} value={localM.companyName} onChange={e => update({ companyName: e.target.value })} placeholder="例：西岡テント" /></div>
+          <div><label className={labelCls}>会社名</label><input className={inputCls} value={localM.companyName} onChange={e => update({ companyName: e.target.value })} placeholder="例：○○テント" /></div>
           <div><label className={labelCls}>会社所在地（距離計算用）</label><input className={inputCls} value={localM.company} onChange={e => update({ company: e.target.value })} placeholder="例：大阪府大阪市" /></div>
           <div><label className={labelCls}>人工単価（円/人日）</label><input type="number" className={inputCls} value={localM.ninku} onChange={e => update({ ninku: parseFloat(e.target.value) || 0 })} /></div>
         </div>

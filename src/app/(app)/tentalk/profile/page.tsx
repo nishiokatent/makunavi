@@ -155,7 +155,7 @@ export default function TenTalkProfilePage() {
               <input
                 value={form.display_name}
                 onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
-                placeholder="山田太郎 / 西岡テント / テント職人"
+                placeholder="テント太郎 / ○○テント / テント職人"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1A2F6E]"
               />
             </div>

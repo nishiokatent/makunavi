@@ -966,7 +966,7 @@ export default function TentsukuCanvas() {
           <svg viewBox="0 0 80 80" width="34" height="34" xmlns="http://www.w3.org/2000/svg" style={{flexShrink:0}}>
             <circle cx="40" cy="40" r="37" fill="none" stroke="#c0392b" strokeWidth="2.5"/>
             <circle cx="40" cy="40" r="33" fill="rgba(192,57,43,0.08)"/>
-            <text x="40" y="31" textAnchor="middle" dominantBaseline="middle" fontFamily="serif" fontSize="17" fontWeight="700" fill="#c0392b" letterSpacing="3">西岡</text>
+            <text x="40" y="31" textAnchor="middle" dominantBaseline="middle" fontFamily="serif" fontSize="17" fontWeight="700" fill="#c0392b" letterSpacing="3">○○</text>
             <line x1="18" y1="40" x2="62" y2="40" stroke="#c0392b" strokeWidth="0.8" opacity="0.6"/>
             <text x="40" y="53" textAnchor="middle" dominantBaseline="middle" fontFamily="serif" fontSize="13" fontWeight="700" fill="#c0392b" letterSpacing="2">テント</text>
           </svg>
