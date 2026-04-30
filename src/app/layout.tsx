@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_JP, Noto_Serif_JP } from 'next/font/google'
 import './globals.css'
+import { NumberWheelGuard } from '@/components/layout/NumberWheelGuard'
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ['latin'],
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja" className="h-full">
       <body className={`${notoSansJP.className} ${notoSerifJP.variable} h-full antialiased`}>
+        <NumberWheelGuard />
         {children}
       </body>
     </html>
