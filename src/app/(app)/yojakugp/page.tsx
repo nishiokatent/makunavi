@@ -52,14 +52,6 @@ function TentDiagram({ nagare, maedaka, maguchi, kinuhaba, compact = false }: {
         alt="テント図面（流れ・間口・前高）"
         style={{ maxWidth: compact ? 260 : 320, width: '100%', borderRadius: 8 }}
       />
-      {(nagare !== undefined || maedaka !== undefined || maguchi !== undefined || kinuhaba !== undefined) && (
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs font-mono">
-          {nagare   !== undefined && <span className="text-[#E8342A] font-bold">流れ {nagare.toLocaleString()} mm</span>}
-          {maedaka  !== undefined && <span className="text-[#1A2F6E] font-bold">前高 {maedaka.toLocaleString()} mm</span>}
-          {maguchi  !== undefined && <span className="text-[#1A2F6E] font-bold">間口 {maguchi.toLocaleString()} mm</span>}
-          {kinuhaba !== undefined && <span className="text-gray-500">生地巾 {kinuhaba}cm（{kinuhaba * 10}mm）</span>}
-        </div>
-      )}
     </div>
   )
 }
