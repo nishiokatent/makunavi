@@ -50,6 +50,7 @@ export interface Profile {
   avatar_url: string | null
   company_name: string | null
   company_name_visible: boolean
+  phone: string | null
   location: string | null
   location_visible: boolean
   business_type: string | null

@@ -40,6 +40,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  // 初回ログイン時の必須項目チェック
+  // display_name または company_name が未設定なら /settings/account へ誘導
+  if (session && !isPublic && !pathname.startsWith('/settings/account')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name, company_name')
+      .eq('id', session.user.id)
+      .single()
+    const incomplete =
+      !profile?.display_name?.trim() || !profile?.company_name?.trim()
+    if (incomplete) {
+      return NextResponse.redirect(new URL('/settings/account?required=1', request.url))
+    }
+  }
+
   return response
 }
 
