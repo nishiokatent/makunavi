@@ -47,17 +47,20 @@ export function getRangeTanka(ranges: TankaRange[], val: number): number {
   return ranges[ranges.length - 1].tanka
 }
 
+// 10の位を四捨五入して100円単位に丸める（例：4783 → 4800、5447 → 5400）
+const round100 = (n: number) => Math.round(n / 100) * 100
+
 export function getAutoVal(
   item: { unit: UnitType; ranges: TankaRange[] },
   dims: { totalY: number; menseki: number; kojihi: number; maguchi: number; debaba: number },
 ): number {
   const { totalY, menseki, kojihi, maguchi, debaba } = dims
-  if (item.unit === 'yojaku') return Math.round(totalY * getRangeTanka(item.ranges, totalY))
-  if (item.unit === 'menseki') return Math.round(menseki * getRangeTanka(item.ranges, menseki))
-  if (item.unit === 'maguchi') return Math.round(maguchi * getRangeTanka(item.ranges, maguchi))
-  if (item.unit === 'debaba') return Math.round(debaba * getRangeTanka(item.ranges, debaba))
-  if (item.unit === 'ninku') return Math.round(kojihi)
-  if (item.unit === 'shiki') return Math.round(getRangeTanka(item.ranges, 0))
+  if (item.unit === 'yojaku') return round100(totalY * getRangeTanka(item.ranges, totalY))
+  if (item.unit === 'menseki') return round100(menseki * getRangeTanka(item.ranges, menseki))
+  if (item.unit === 'maguchi') return round100(maguchi * getRangeTanka(item.ranges, maguchi))
+  if (item.unit === 'debaba') return round100(debaba * getRangeTanka(item.ranges, debaba))
+  if (item.unit === 'ninku') return round100(kojihi)
+  if (item.unit === 'shiki') return round100(getRangeTanka(item.ranges, 0))
   return 0
 }
 
