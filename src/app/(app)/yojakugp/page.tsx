@@ -40,76 +40,27 @@ function fmtTime(sec: number) {
 }
 
 // ─────────────────────────────────────────
-// SVG テント図面
+// テント図面（画像＋寸法ラベル）
 // ─────────────────────────────────────────
 function TentDiagram({ nagare, maedaka, maguchi, kinuhaba, compact = false }: {
   nagare?: number; maedaka?: number; maguchi?: number; kinuhaba?: number; compact?: boolean
 }) {
-  const W = compact ? 280 : 340
-  const H = compact ? 160 : 200
-  const ml = 70, mr = 30, mt = 30, mb = 40
-  const fw = W - ml - mr  // figure width
-  const fh = H - mt - mb  // figure height
-
-  // proportion-based drawing
-  const roofH = Math.round(fh * 0.55)
-  const frontH = fh - roofH
-
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{maxWidth:'100%'}}>
-      {/* 流れ面（上面・斜め屋根） */}
-      <polygon
-        points={`${ml},${mt+frontH} ${ml},${mt} ${ml+fw},${mt} ${ml+fw},${mt+frontH}`}
-        fill="#EEF2FF" stroke="#1A2F6E" strokeWidth="1.5"
+    <div className="flex flex-col items-center gap-2">
+      <img
+        src="/tent_diagram.jpeg"
+        alt="テント図面（流れ・間口・前高）"
+        style={{ maxWidth: compact ? 260 : 320, width: '100%', borderRadius: 8 }}
       />
-      {/* 前幕（前面） */}
-      <rect x={ml} y={mt+frontH} width={fw} height={roofH}
-        fill="#DBEAFE" stroke="#1A2F6E" strokeWidth="1.5" />
-
-      {/* 流れ寸法ラベル（左側） */}
-      {nagare !== undefined && (
-        <>
-          <line x1={ml-18} y1={mt} x2={ml-18} y2={mt+frontH} stroke="#E8342A" strokeWidth="1.2" markerEnd="url(#arr)" markerStart="url(#arr)" />
-          <text x={ml-22} y={(mt + mt+frontH)/2} textAnchor="end" fontSize={compact?9:10} fill="#E8342A" fontWeight="700" dominantBaseline="middle">
-            {nagare?.toLocaleString()}
-          </text>
-          <text x={ml-22} y={(mt + mt+frontH)/2 + 12} textAnchor="end" fontSize={compact?8:9} fill="#E8342A" dominantBaseline="middle">mm</text>
-          <text x={ml-52} y={(mt + mt+frontH)/2 - 2} textAnchor="end" fontSize={compact?8:9} fill="#666" dominantBaseline="middle">流れ</text>
-        </>
+      {(nagare !== undefined || maedaka !== undefined || maguchi !== undefined || kinuhaba !== undefined) && (
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs font-mono">
+          {nagare   !== undefined && <span className="text-[#E8342A] font-bold">流れ {nagare.toLocaleString()} mm</span>}
+          {maedaka  !== undefined && <span className="text-[#1A2F6E] font-bold">前高 {maedaka.toLocaleString()} mm</span>}
+          {maguchi  !== undefined && <span className="text-[#1A2F6E] font-bold">間口 {maguchi.toLocaleString()} mm</span>}
+          {kinuhaba !== undefined && <span className="text-gray-500">生地巾 {kinuhaba}cm（{kinuhaba * 10}mm）</span>}
+        </div>
       )}
-
-      {/* 前高ラベル（右側） */}
-      {maedaka !== undefined && (
-        <>
-          <line x1={ml+fw+14} y1={mt+frontH} x2={ml+fw+14} y2={H-mb} stroke="#1A2F6E" strokeWidth="1.2" />
-          <text x={ml+fw+18} y={(mt+frontH + H-mb)/2} fontSize={compact?9:10} fill="#1A2F6E" fontWeight="700" dominantBaseline="middle">
-            {maedaka?.toLocaleString()}
-          </text>
-          <text x={ml+fw+18} y={(mt+frontH + H-mb)/2 + 12} fontSize={compact?8:9} fill="#1A2F6E" dominantBaseline="middle">mm</text>
-          <text x={ml+fw+18} y={mt+frontH - 10} fontSize={compact?8:9} fill="#666" dominantBaseline="middle">前高</text>
-        </>
-      )}
-
-      {/* 間口ラベル（下） */}
-      {maguchi !== undefined && (
-        <>
-          <line x1={ml} y1={H-mb+14} x2={ml+fw} y2={H-mb+14} stroke="#1A2F6E" strokeWidth="1.2" />
-          <text x={ml+fw/2} y={H-mb+26} textAnchor="middle" fontSize={compact?9:10} fill="#1A2F6E" fontWeight="700">
-            間口 {maguchi?.toLocaleString()}mm
-          </text>
-        </>
-      )}
-
-      {/* 生地巾ラベル */}
-      {kinuhaba !== undefined && (
-        <text x={ml+fw/2} y={H-mb+38} textAnchor="middle" fontSize={compact?8:9} fill="#666">
-          生地巾 {kinuhaba}cm（{kinuhaba*10}mm）
-        </text>
-      )}
-
-      {/* 地面ライン */}
-      <line x1={ml-10} y1={H-mb} x2={ml+fw+10} y2={H-mb} stroke="#999" strokeWidth="1" strokeDasharray="4,3" />
-    </svg>
+    </div>
   )
 }
 
