@@ -25,4 +25,6 @@ export const DEFAULT_MASTER: Master = {
   nextItemId: 8,
   recentAddr: [],
   samples: [],
+  clients: [],
+  nextClientId: 1,
 }

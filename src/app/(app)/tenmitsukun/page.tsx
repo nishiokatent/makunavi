@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import type { Master, ActiveEstItem, CalcResult, SavedCase, EstItemMaster, TankaRange, Sample } from '@/types/tenmitsukun'
+import type { Master, ActiveEstItem, CalcResult, SavedCase, EstItemMaster, TankaRange, Sample, Client } from '@/types/tenmitsukun'
 import { calcDims, getAutoVal, getShokehi, fmt } from '@/lib/tenmitsukun/calc'
 import { LOCATIONS, PREF_COORDS } from '@/lib/tenmitsukun/locations'
 import { SETUP_PRESETS } from '@/lib/tenmitsukun/presets'
@@ -275,9 +275,23 @@ export default function TenmitsukuPage() {
       estItems: items.map(i => ({ name: i.name, value: i.value || 0 })),
       ...lastCalc,
     }
-    if (address && master) {
-      const recent = [address, ...(master.recentAddr ?? []).filter(a => a !== address)].slice(0, 8)
-      setMaster(prev => prev ? { ...prev, recentAddr: recent } : prev)
+    if (master) {
+      let nextMaster = master
+      if (address) {
+        const recent = [address, ...(nextMaster.recentAddr ?? []).filter(a => a !== address)].slice(0, 8)
+        nextMaster = { ...nextMaster, recentAddr: recent }
+      }
+      const clientName = (client || '').trim()
+      if (clientName) {
+        const list = nextMaster.clients ?? []
+        const exists = list.some(c => c.name === clientName)
+        if (!exists) {
+          const nextId = nextMaster.nextClientId ?? (list.length + 1)
+          const newClient: Client = { id: 'cl' + nextId, name: clientName, furigana: '' }
+          nextMaster = { ...nextMaster, clients: [...list, newClient], nextClientId: nextId + 1 }
+        }
+      }
+      if (nextMaster !== master) setMaster(nextMaster)
     }
     try {
       if (editingId != null) {
@@ -812,6 +826,72 @@ function MmInput({ label, value, onChange, placeholder }: {
 }
 
 // ─────────────────────────────────────────
+// ClientPicker — 得意先名のオートコンプリート
+// ─────────────────────────────────────────
+function sortClientsByFurigana(clients: Client[]): Client[] {
+  return [...clients].sort((a, b) => {
+    const ka = (a.furigana || a.name || '').trim()
+    const kb = (b.furigana || b.name || '').trim()
+    if (!ka && kb) return 1
+    if (ka && !kb) return -1
+    return ka.localeCompare(kb, 'ja')
+  })
+}
+
+function ClientPicker({ value, onChange, clients, inputCls }: {
+  value: string
+  onChange: (v: string) => void
+  clients: Client[]
+  inputCls: string
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const sorted = sortClientsByFurigana(clients)
+  const q = value.trim()
+  const filtered = q
+    ? sorted.filter(c => c.name.includes(q) || (c.furigana ?? '').includes(q))
+    : sorted
+
+  return (
+    <div className="relative" ref={wrapRef}>
+      <input
+        className={inputCls}
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        placeholder="例：山田商店"
+        autoComplete="off"
+      />
+      {open && filtered.length > 0 && (
+        <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+          {filtered.map(c => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => { onChange(c.name); setOpen(false) }}
+              className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-baseline gap-2 border-b border-gray-50 last:border-0"
+            >
+              <span className="text-gray-800">{c.name}</span>
+              {c.furigana && <span className="text-[10px] text-gray-400">{c.furigana}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────
 // EstTab
 // ─────────────────────────────────────────
 interface EstTabProps {
@@ -894,8 +974,8 @@ function EstTab({
             <input className={selCls} value={caseName} onChange={e => setCaseName(e.target.value)} placeholder="例：西岡商店街テント" />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">お客様名</label>
-            <input className={selCls} value={client} onChange={e => setClient(e.target.value)} placeholder="例：山田太郎" />
+            <label className="block text-xs text-gray-500 mb-1">得意先名</label>
+            <ClientPicker value={client} onChange={setClient} clients={master.clients ?? []} inputCls={selCls} />
           </div>
         </div>
       </section>
@@ -1282,6 +1362,21 @@ function MasterTab({ master, onChange, onStartSetup, onEditSample }: {
     const newSamples = (localM.samples ?? []).filter(s => s.id !== id)
     onChange({ ...localM, samples: newSamples })
   }
+  function addClient() {
+    const list = localM.clients ?? []
+    const nextId = localM.nextClientId ?? (list.length + 1)
+    const newClient: Client = { id: 'cl' + nextId, name: '', furigana: '' }
+    setLocalM(prev => ({ ...prev, clients: [...(prev.clients ?? []), newClient], nextClientId: nextId + 1 }))
+    setSaved(false)
+  }
+  function updateClient(id: string, field: 'name' | 'furigana', val: string) {
+    setLocalM(prev => ({ ...prev, clients: (prev.clients ?? []).map(c => c.id === id ? { ...c, [field]: val } : c) }))
+    setSaved(false)
+  }
+  function deleteClient(id: string) {
+    setLocalM(prev => ({ ...prev, clients: (prev.clients ?? []).filter(c => c.id !== id) }))
+    setSaved(false)
+  }
   function runGenerateRanges() {
     const samples = localM.samples ?? []
     if (samples.length < 3) { alert('サンプルが3件以上必要です'); return }
@@ -1303,6 +1398,37 @@ function MasterTab({ master, onChange, onStartSetup, onEditSample }: {
           <div><label className={labelCls}>会社所在地（距離計算用）</label><input className={inputCls} value={localM.company} onChange={e => update({ company: e.target.value })} placeholder="例：大阪府大阪市" /></div>
           <div><label className={labelCls}>人工単価（円/人日）</label><input type="number" className={inputCls} value={localM.ninku} onChange={e => update({ ninku: parseFloat(e.target.value) || 0 })} /></div>
         </div>
+      </section>
+
+      {/* Clients */}
+      <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-gray-700">得意先マスタ</h3>
+          <button onClick={addClient} className="text-xs border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:border-[#1A2F6E] transition-colors">＋ 追加</button>
+        </div>
+        <p className="text-xs text-gray-400 mb-3">案件を保存すると自動で追加されます。フリガナを入れるとあいうえお順で並びます。</p>
+        {(() => {
+          const sorted = sortClientsByFurigana(localM.clients ?? [])
+          if (sorted.length === 0) {
+            return <div className="text-center py-6 text-gray-400 text-sm">得意先がまだありません</div>
+          }
+          return (
+            <div className="space-y-2">
+              <div className="grid grid-cols-[1fr_1fr_auto] gap-2 px-1 text-[10px] text-gray-400">
+                <span>得意先名</span>
+                <span>フリガナ</span>
+                <span></span>
+              </div>
+              {sorted.map(c => (
+                <div key={c.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                  <input className={inputCls} value={c.name} onChange={e => updateClient(c.id, 'name', e.target.value)} placeholder="得意先名" />
+                  <input className={inputCls} value={c.furigana} onChange={e => updateClient(c.id, 'furigana', e.target.value)} placeholder="ヤマダショウテン" />
+                  <button onClick={() => deleteClient(c.id)} className="text-xs text-red-400 hover:text-red-600 px-2">削除</button>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
       </section>
 
       {/* Distance */}

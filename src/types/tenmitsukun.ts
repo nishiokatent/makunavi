@@ -51,6 +51,12 @@ export interface Sample {
   items: SampleItem[]
 }
 
+export interface Client {
+  id: string
+  name: string
+  furigana: string
+}
+
 export interface Master {
   companyName: string
   company: string
@@ -63,6 +69,8 @@ export interface Master {
   nextItemId: number
   recentAddr: string[]
   samples: Sample[]
+  clients: Client[]
+  nextClientId: number
 }
 
 export interface ActiveEstItem {
