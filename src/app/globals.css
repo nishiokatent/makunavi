@@ -205,3 +205,15 @@ html, body {
 a, button {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* =====================================================
+   Number input — スピナー（上下矢印）を非表示
+   ===================================================== */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
