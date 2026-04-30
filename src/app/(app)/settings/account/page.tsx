@@ -13,10 +13,6 @@ type FormData = {
   phone: string
   location: string
   location_visible: boolean
-  business_type: string
-  business_type_visible: boolean
-  bio: string
-  bio_visible: boolean
 }
 
 export default function AccountSettingsPage() {
@@ -33,10 +29,6 @@ export default function AccountSettingsPage() {
     phone: '',
     location: '',
     location_visible: false,
-    business_type: '',
-    business_type_visible: false,
-    bio: '',
-    bio_visible: false,
   })
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
@@ -61,10 +53,6 @@ export default function AccountSettingsPage() {
           phone:                data.phone ?? '',
           location:             data.location ?? '',
           location_visible:     data.location_visible ?? false,
-          business_type:        data.business_type ?? '',
-          business_type_visible:data.business_type_visible ?? false,
-          bio:                  data.bio ?? '',
-          bio_visible:          data.bio_visible ?? false,
         })
       }
     }
@@ -213,29 +201,12 @@ export default function AccountSettingsPage() {
             className="input-base"
           />
         </Field>
-        <Field label="活動エリア" toggle={{ visible: form.location_visible, onChange: v => setForm(f => ({ ...f, location_visible: v })) }}>
+        <Field label="会社所在地（住所）">
           <input
             value={form.location}
             onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
-            placeholder="例：京都府"
+            placeholder="例：京都府京都市下京区〇〇町1-1"
             className="input-base"
-          />
-        </Field>
-        <Field label="業態" toggle={{ visible: form.business_type_visible, onChange: v => setForm(f => ({ ...f, business_type_visible: v })) }}>
-          <input
-            value={form.business_type}
-            onChange={e => setForm(f => ({ ...f, business_type: e.target.value }))}
-            placeholder="例：テント・日除け施工業"
-            className="input-base"
-          />
-        </Field>
-        <Field label="自己紹介" toggle={{ visible: form.bio_visible, onChange: v => setForm(f => ({ ...f, bio_visible: v })) }}>
-          <textarea
-            value={form.bio}
-            onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-            placeholder="京都でテント・日除けの施工をしています。お気軽にご相談ください。"
-            rows={3}
-            className="input-base resize-none"
           />
         </Field>
       </Card>
