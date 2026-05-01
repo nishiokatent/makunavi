@@ -221,7 +221,7 @@ export default function TentsukuCanvas() {
     if(showHandle&&!('ontouchstart' in window)){
       c.save();
       c.beginPath();c.arc(bx+bw,by+bh,CORNER_R,0,Math.PI*2);
-      c.fillStyle=lb.resizing?'#e8ff47':'rgba(255,255,255,0.9)';c.fill();
+      c.fillStyle=lb.resizing?'#c89968':'rgba(255,255,255,0.9)';c.fill();
       c.strokeStyle='#888';c.lineWidth=1.5;c.setLineDash([]);c.stroke();
       c.fillStyle='#333';c.font='bold 9px monospace';
       c.textAlign='center';c.textBaseline='middle';
@@ -290,7 +290,7 @@ export default function TentsukuCanvas() {
 
     // ── 新調モード ──
     if(appModeRef.current==='new'){
-      const ptColors=['#ff9f00','#ff9f00','#e8ff47','#47c8ff','#ff4747'];
+      const ptColors=['#c89968','#c89968','#a87a4d','#a87a4d','#2d2a24'];
       ntPtsRef.current.forEach((p,i)=>{
         const sx=p.x*sc+ox,sy=p.y*sc+oy;
         vc.save();
@@ -298,8 +298,8 @@ export default function TentsukuCanvas() {
         vc.fillStyle='rgba(0,0,0,0.35)';vc.fill();
         vc.beginPath();vc.arc(sx,sy,10,0,Math.PI*2);
         vc.fillStyle=ptColors[i];vc.fill();
-        vc.strokeStyle='#111';vc.lineWidth=1.5;vc.stroke();
-        vc.font='bold 10px monospace';vc.fillStyle='#111';
+        vc.strokeStyle='#fff';vc.lineWidth=1.5;vc.stroke();
+        vc.font='bold 10px monospace';vc.fillStyle='#fff';
         vc.textAlign='center';vc.textBaseline='middle';
         vc.fillText(String(i+1),sx,sy);
         vc.restore();
@@ -308,14 +308,14 @@ export default function TentsukuCanvas() {
         const p1=ntPtsRef.current[0],p2=ntPtsRef.current[1];
         vc.save();vc.beginPath();
         vc.moveTo(p1.x*sc+ox,p1.y*sc+oy);vc.lineTo(p2.x*sc+ox,p2.y*sc+oy);
-        vc.strokeStyle='rgba(255,159,0,0.7)';vc.lineWidth=2;vc.setLineDash([6,4]);vc.stroke();
+        vc.strokeStyle='rgba(200,153,104,0.85)';vc.lineWidth=2;vc.setLineDash([6,4]);vc.stroke();
         vc.restore();
       }
       if(ntPtsRef.current.length>=4){
         const p3=ntPtsRef.current[2],p4=ntPtsRef.current[3];
         vc.save();vc.beginPath();
         vc.moveTo(p3.x*sc+ox,p3.y*sc+oy);vc.lineTo(p4.x*sc+ox,p4.y*sc+oy);
-        vc.strokeStyle='rgba(232,255,71,0.7)';vc.lineWidth=2;vc.setLineDash([6,4]);vc.stroke();
+        vc.strokeStyle='rgba(168,122,77,0.85)';vc.lineWidth=2;vc.setLineDash([6,4]);vc.stroke();
         vc.restore();
       }
       const V=ntVertsRef.current;
@@ -349,7 +349,7 @@ export default function TentsukuCanvas() {
           fillFaceNT([V.WL,V.WR,V.FR,V.FL],bNagare);
         }
         // ワイヤーフレーム
-        vc.save();vc.strokeStyle='rgba(232,255,71,0.85)';vc.lineWidth=1.8;vc.setLineDash([]);
+        vc.save();vc.strokeStyle='rgba(255,255,255,0.9)';vc.lineWidth=1.8;vc.setLineDash([]);
         vc.beginPath();vc.moveTo(vsx(V.WL),vsy(V.WL));vc.lineTo(vsx(V.WLU),vsy(V.WLU));
         vc.lineTo(vsx(V.WRU),vsy(V.WRU));vc.lineTo(vsx(V.WR),vsy(V.WR));vc.lineTo(vsx(V.WL),vsy(V.WL));vc.stroke();
         vc.beginPath();vc.moveTo(vsx(V.FL),vsy(V.FL));vc.lineTo(vsx(V.FLU),vsy(V.FLU));
@@ -365,7 +365,7 @@ export default function TentsukuCanvas() {
           vc.beginPath();vc.arc(vsx(p),vsy(p),12,0,Math.PI*2);
           vc.fillStyle='rgba(0,0,0,0.3)';vc.fill();
           vc.beginPath();vc.arc(vsx(p),vsy(p),9,0,Math.PI*2);
-          vc.fillStyle=String(k).startsWith('F')?'#47c8ff':'#fff';vc.fill();
+          vc.fillStyle=String(k).startsWith('F')?'#c89968':'#fff';vc.fill();
           vc.strokeStyle='#111';vc.lineWidth=1.5;vc.stroke();
           vc.restore();
         });
@@ -408,9 +408,9 @@ export default function TentsukuCanvas() {
         if(ei>=0){
           const n=pts2.length,a=pts2[(ei-1+n)%n],b2=pts2[ei%n];
           vc.beginPath();vc.moveTo(vsx(a),vsy(a));vc.lineTo(vsx(b2),vsy(b2));
-          vc.strokeStyle='rgba(71,200,255,0.9)';vc.lineWidth=4;vc.setLineDash([]);vc.stroke();
+          vc.strokeStyle='rgba(200,153,104,0.95)';vc.lineWidth=4;vc.setLineDash([]);vc.stroke();
           const mx=(vsx(a)+vsx(b2))/2,my=(vsy(a)+vsy(b2))/2;
-          vc.beginPath();vc.arc(mx,my,8,0,Math.PI*2);vc.fillStyle='#47c8ff';vc.fill();
+          vc.beginPath();vc.arc(mx,my,8,0,Math.PI*2);vc.fillStyle='#c89968';vc.fill();
           vc.font='bold 10px monospace';vc.fillStyle='#000';vc.textAlign='center';vc.textBaseline='middle';
           vc.fillText('+',mx,my);
         }
@@ -418,7 +418,7 @@ export default function TentsukuCanvas() {
       vc.beginPath();vc.moveTo(vsx(pts2[0]),vsy(pts2[0]));
       for(let i=1;i<pts2.length;i++)vc.lineTo(vsx(pts2[i]),vsy(pts2[i]));
       if(pts2.length>=3)vc.closePath();
-      vc.strokeStyle='rgba(232,255,71,0.9)';vc.lineWidth=2;vc.setLineDash([]);vc.stroke();
+      vc.strokeStyle='rgba(255,255,255,0.95)';vc.lineWidth=2;vc.setLineDash([]);vc.stroke();
       vc.restore();
     }
     // 頂点
@@ -426,9 +426,9 @@ export default function TentsukuCanvas() {
       vc.save();
       vc.beginPath();vc.arc(vsx(p),vsy(p),13,0,Math.PI*2);vc.fillStyle='rgba(0,0,0,0.4)';vc.fill();
       vc.beginPath();vc.arc(vsx(p),vsy(p),10,0,Math.PI*2);
-      vc.fillStyle=i===0?'#e8ff47':'#ffffff';vc.fill();
-      vc.strokeStyle='#111';vc.lineWidth=1.5;vc.stroke();
-      vc.font='bold 10px monospace';vc.fillStyle='#111';
+      vc.fillStyle=i===0?'#c89968':'#ffffff';vc.fill();
+      vc.strokeStyle='#fff';vc.lineWidth=1.5;vc.stroke();
+      vc.font='bold 10px monospace';vc.fillStyle=i===0?'#fff':'#2d2a24';
       vc.textAlign='center';vc.textBaseline='middle';
       vc.fillText(String(i+1),vsx(p),vsy(p));
       vc.restore();
@@ -615,6 +615,7 @@ export default function TentsukuCanvas() {
   function cancelLong(){if(longTimerRef.current){clearTimeout(longTimerRef.current);longTimerRef.current=null;}}
 
   function onPD(e:PointerEvent){
+    if(!srcImgRef.current)return;
     e.preventDefault();
     const pos=getWrapPos(e);
     ptrRef.current.set(e.pointerId,pos);
@@ -674,6 +675,7 @@ export default function TentsukuCanvas() {
   }
 
   function onPM(e:PointerEvent){
+    if(!srcImgRef.current)return;
     e.preventDefault();
     const pos=getWrapPos(e);
     ptrRef.current.set(e.pointerId,pos);
@@ -730,6 +732,7 @@ export default function TentsukuCanvas() {
   }
 
   function onPU(e:PointerEvent){
+    if(!srcImgRef.current){ptrRef.current.delete(e.pointerId);return;}
     e.preventDefault();
     ptrRef.current.delete(e.pointerId);
     cancelLong();
@@ -979,8 +982,8 @@ export default function TentsukuCanvas() {
         <div style={S.headerActions}>
           {appMode === 'replace' && srcImgRef.current && (
             <div style={S.pointBadge}>
-              <span style={{fontSize: 9, color: '#71717a', letterSpacing: '0.14em', fontWeight: 600}}>POINTS</span>
-              <span style={{color: pointCount >= 3 ? '#E8342A' : '#a1a1aa', fontWeight: 700, fontVariantNumeric: 'tabular-nums', fontSize: 13, fontFamily: 'var(--font-roboto-mono), monospace'}}>{pointCount}</span>
+              <span style={{fontSize: 9, color: 'rgba(45,42,36,0.5)', letterSpacing: '0.14em', fontWeight: 600}}>POINTS</span>
+              <span style={{color: pointCount >= 3 ? '#c89968' : 'rgba(45,42,36,0.5)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', fontSize: 13, fontFamily: 'var(--font-roboto-mono), monospace'}}>{pointCount}</span>
             </div>
           )}
           <label style={S.uploadBtn}>
@@ -1016,20 +1019,22 @@ export default function TentsukuCanvas() {
         <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%'}} />
 
         {!srcImgRef.current && (
-          <div style={S.emptyState}>
+          <label style={S.emptyState}>
+            <input type="file" accept="image/*" style={{display:'none'}}
+              onChange={e=>{const f=e.target.files?.[0];if(f)handleImageFile(f);e.target.value='';}} />
             <div style={S.emptyIcon}>
               <Icon name="image" size={28}/>
             </div>
-            <div style={S.emptyTitle}>画像を開いてください</div>
+            <div style={S.emptyTitle}>タップして画像を開く</div>
             <div style={S.emptySub}>テントの写真を読み込んで<br/>シミュレーションを開始</div>
-          </div>
+          </label>
         )}
 
         {statusMsg && (
           <div style={{
             ...S.toast,
-            borderColor: statusMsg.type === 'success' ? '#10b981' : statusMsg.type === 'error' ? '#ef4444' : '#3b82f6',
-            color: statusMsg.type === 'success' ? '#10b981' : statusMsg.type === 'error' ? '#ef4444' : '#3b82f6',
+            borderColor: statusMsg.type === 'success' ? '#c89968' : 'rgba(45,42,36,0.5)',
+            color: statusMsg.type === 'success' ? '#c89968' : '#2d2a24',
           }}>
             <Icon name={statusMsg.type === 'success' ? 'check' : 'info'} size={12}/>
             <span>{statusMsg.text}</span>
@@ -1099,19 +1104,19 @@ export default function TentsukuCanvas() {
                     <div style={S.step}>
                       <span style={S.stepLabel}>STEP 1</span>
                       <span style={S.stepDesc}>奥行き線の両端</span>
-                      <span style={{...S.stepNum, background: '#f59e0b'}}>1</span>
-                      <span style={{...S.stepNum, background: '#f59e0b'}}>2</span>
+                      <span style={{...S.stepNum, background: '#c89968'}}>1</span>
+                      <span style={{...S.stepNum, background: '#c89968'}}>2</span>
                     </div>
                     <div style={S.step}>
                       <span style={S.stepLabel}>STEP 2</span>
                       <span style={S.stepDesc}>テント間口の両端</span>
-                      <span style={{...S.stepNum, background: '#fbbf24', color: '#1a1a1a'}}>3</span>
-                      <span style={{...S.stepNum, background: '#3b82f6'}}>4</span>
+                      <span style={{...S.stepNum, background: '#a87a4d'}}>3</span>
+                      <span style={{...S.stepNum, background: '#a87a4d'}}>4</span>
                     </div>
                     <div style={S.step}>
                       <span style={S.stepLabel}>STEP 3</span>
                       <span style={S.stepDesc}>テント取付高さ</span>
-                      <span style={{...S.stepNum, background: '#ef4444'}}>5</span>
+                      <span style={{...S.stepNum, background: '#2d2a24'}}>5</span>
                     </div>
                   </div>
 
@@ -1263,26 +1268,29 @@ function Slider({ label, value, min, max, display, onChange }: {
   return (
     <div>
       <div style={{display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom: 6}}>
-        <span style={{fontSize: 11, color: '#a1a1aa', fontWeight: 600, letterSpacing: '0.02em'}}>{label}</span>
-        <span style={{fontSize: 11, color: '#E8342A', fontWeight: 600, fontFamily: 'var(--font-roboto-mono), monospace'}}>
+        <span style={{fontSize: 11, color: 'rgba(45,42,36,0.6)', fontWeight: 600, letterSpacing: '0.02em'}}>{label}</span>
+        <span style={{fontSize: 11, color: '#c89968', fontWeight: 700, fontFamily: 'var(--font-roboto-mono), monospace'}}>
           {display ?? String(value)}
         </span>
       </div>
       <input type="range" min={min} max={max} value={value}
         onChange={e=>onChange(+e.target.value)}
-        style={{width: '100%', accentColor: '#E8342A', cursor: 'pointer'}} />
+        style={{width: '100%', accentColor: '#c89968', cursor: 'pointer'}} />
     </div>
   )
 }
 
 // ─────────────────────────────────────────
-// Styles
+// Styles — 3-color palette
+//   #f5f1e8 cream   (background)
+//   #2d2a24 dark    (text / canvas backdrop)
+//   #c89968 tan     (accent / active)
 // ─────────────────────────────────────────
 const S: Record<string, React.CSSProperties> = {
   root: {
     fontFamily: "'Noto Sans JP', sans-serif",
-    background: '#0a0a0d',
-    color: '#f5f5f7',
+    background: '#f5f1e8',
+    color: '#2d2a24',
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
@@ -1295,104 +1303,105 @@ const S: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '11px 18px',
-    background: '#0f0f12',
-    borderBottom: '1px solid #1f1f24',
+    background: '#faf6ed',
+    borderBottom: '1px solid rgba(45,42,36,0.1)',
     flexShrink: 0,
     gap: 12,
   },
   brand: { display: 'flex', alignItems: 'center', gap: 11 },
   brandLogo: {
     width: 34, height: 34, borderRadius: 9,
-    background: 'linear-gradient(135deg, #E8342A 0%, #c42820 100%)',
+    background: '#c89968',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 2px 8px rgba(232,52,42,0.25)',
+    boxShadow: '0 1px 3px rgba(45,42,36,0.18)',
     flexShrink: 0,
   },
   brandName: {
     fontFamily: "'Noto Serif JP', serif",
-    fontSize: 15, fontWeight: 700, color: '#f5f5f7',
+    fontSize: 15, fontWeight: 700, color: '#2d2a24',
     lineHeight: 1, letterSpacing: '0.02em',
   },
   brandSub: {
-    fontSize: 9, color: '#71717a',
+    fontSize: 9, color: 'rgba(45,42,36,0.5)',
     letterSpacing: '0.18em', marginTop: 4,
     fontWeight: 600,
   },
   headerActions: { display: 'flex', alignItems: 'center', gap: 8 },
   pointBadge: {
     display: 'flex', alignItems: 'center', gap: 8,
-    background: '#16161b', border: '1px solid #2a2a31',
+    background: '#fff', border: '1px solid rgba(45,42,36,0.12)',
     padding: '6px 11px', borderRadius: 7,
   },
   uploadBtn: {
     display: 'flex', alignItems: 'center', gap: 7,
-    background: '#16161b', border: '1px solid #2a2a31',
-    color: '#f5f5f7', padding: '7px 12px', borderRadius: 7,
+    background: '#fff', border: '1px solid rgba(45,42,36,0.15)',
+    color: '#2d2a24', padding: '7px 12px', borderRadius: 7,
     fontSize: 12, fontWeight: 500, cursor: 'pointer',
-    transition: 'background 0.15s',
+    transition: 'all 0.15s',
   },
 
   modeWrap: {
-    padding: '10px 18px', background: '#0f0f12',
-    borderBottom: '1px solid #1f1f24', flexShrink: 0,
+    padding: '10px 18px', background: '#faf6ed',
+    borderBottom: '1px solid rgba(45,42,36,0.1)', flexShrink: 0,
   },
   modeToggle: {
-    display: 'flex', background: '#16161b',
-    border: '1px solid #2a2a31', borderRadius: 9, padding: 3, gap: 2,
+    display: 'flex', background: '#efe9dc',
+    border: '1px solid rgba(45,42,36,0.08)', borderRadius: 9, padding: 3, gap: 2,
   },
   modeBtn: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 7, padding: '8px 12px', background: 'transparent',
-    color: '#71717a', border: 'none', borderRadius: 7,
+    color: 'rgba(45,42,36,0.5)', border: 'none', borderRadius: 7,
     fontSize: 12, fontWeight: 600, cursor: 'pointer',
     fontFamily: 'inherit', transition: 'all 0.15s',
     letterSpacing: '0.02em',
   },
   modeBtnActive: {
-    background: '#E8342A', color: '#fff',
-    boxShadow: '0 1px 3px rgba(232,52,42,0.35)',
+    background: '#c89968', color: '#fff',
+    boxShadow: '0 1px 2px rgba(45,42,36,0.18)',
   },
 
   canvasWrap: {
     flex: 1, position: 'relative', overflow: 'hidden',
-    background: '#050507', touchAction: 'none',
+    background: '#2d2a24', touchAction: 'none',
   },
   emptyState: {
     position: 'absolute', inset: 0,
     display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
-    gap: 14, pointerEvents: 'none',
+    gap: 14, cursor: 'pointer',
   },
   emptyIcon: {
     width: 64, height: 64,
-    border: '1.5px dashed #2a2a31', borderRadius: 14,
+    border: '1.5px dashed rgba(245,241,232,0.3)', borderRadius: 14,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: '#71717a',
+    color: 'rgba(245,241,232,0.7)',
+    transition: 'all 0.2s',
   },
   emptyTitle: {
-    color: '#a1a1aa', fontSize: 14, fontWeight: 600,
+    color: 'rgba(245,241,232,0.95)', fontSize: 14, fontWeight: 600,
     marginTop: 4,
   },
   emptySub: {
-    color: '#71717a', fontSize: 12,
+    color: 'rgba(245,241,232,0.55)', fontSize: 12,
     textAlign: 'center', lineHeight: 1.7,
   },
   toast: {
     position: 'absolute', top: 14, left: '50%',
     transform: 'translateX(-50%)',
-    background: 'rgba(15,15,18,0.95)',
-    backdropFilter: 'blur(8px)',
+    background: '#faf6ed',
     border: '1px solid', padding: '7px 14px',
     borderRadius: 999, fontSize: 12, fontWeight: 500,
     whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
     display: 'flex', alignItems: 'center', gap: 6,
+    boxShadow: '0 2px 10px rgba(45,42,36,0.18)',
   },
   beforeBadge: {
     position: 'absolute', top: 14, left: '50%',
     transform: 'translateX(-50%)',
-    background: 'rgba(15,15,18,0.95)',
+    background: 'rgba(45,42,36,0.85)',
     backdropFilter: 'blur(8px)',
-    border: '1px solid #3b82f6', color: '#3b82f6',
+    border: '1px solid #c89968', color: '#c89968',
     padding: '5px 18px', borderRadius: 999,
     fontSize: 11, fontWeight: 700,
     letterSpacing: '0.18em',
@@ -1400,57 +1409,60 @@ const S: Record<string, React.CSSProperties> = {
   },
   zoomBadge: {
     position: 'absolute', bottom: 14, right: 14,
-    background: 'rgba(15,15,18,0.85)',
+    background: 'rgba(45,42,36,0.7)',
     backdropFilter: 'blur(8px)',
-    border: '1px solid #2a2a31',
-    color: '#a1a1aa', padding: '4px 10px', borderRadius: 999,
+    border: '1px solid rgba(245,241,232,0.15)',
+    color: 'rgba(245,241,232,0.85)', padding: '4px 10px', borderRadius: 999,
     fontFamily: 'var(--font-roboto-mono), monospace',
     fontSize: 11, pointerEvents: 'none', fontWeight: 500,
   },
   beforeBtn: {
     position: 'absolute', bottom: 14, left: 14,
     display: 'flex', alignItems: 'center', gap: 6,
-    background: 'rgba(15,15,18,0.92)',
+    background: 'rgba(45,42,36,0.85)',
     backdropFilter: 'blur(8px)',
-    border: '1px solid #3a3a42', color: '#f5f5f7',
+    border: '1px solid rgba(245,241,232,0.2)',
+    color: '#f5f1e8',
     padding: '7px 14px', borderRadius: 999,
     fontSize: 11, fontWeight: 600, fontFamily: 'inherit',
     letterSpacing: '0.06em', cursor: 'pointer', zIndex: 10,
   },
 
   panel: {
-    background: '#0f0f12', borderTop: '1px solid #1f1f24', flexShrink: 0,
+    background: '#faf6ed',
+    borderTop: '1px solid rgba(45,42,36,0.1)',
+    flexShrink: 0,
   },
-  tabs: { display: 'flex', borderBottom: '1px solid #1f1f24' },
+  tabs: { display: 'flex', borderBottom: '1px solid rgba(45,42,36,0.08)' },
   tab: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 7, padding: '12px 8px', background: 'transparent',
-    color: '#71717a', border: 'none',
+    color: 'rgba(45,42,36,0.5)', border: 'none',
     borderBottom: '2px solid transparent',
     fontSize: 12, fontWeight: 600, cursor: 'pointer',
     fontFamily: 'inherit', transition: 'all 0.15s',
   },
   tabActive: {
-    color: '#E8342A', borderBottomColor: '#E8342A',
+    color: '#c89968', borderBottomColor: '#c89968',
   },
   tabContent: { padding: '14px 18px' },
 
   helpBox: {
-    background: '#16161b', border: '1px solid #1f1f24',
+    background: '#fff', border: '1px solid rgba(45,42,36,0.08)',
     borderRadius: 9, padding: '10px 14px',
   },
   helpRow: {
     display: 'flex', alignItems: 'center', gap: 10,
-    fontSize: 12, color: '#a1a1aa',
+    fontSize: 12, color: 'rgba(45,42,36,0.7)',
     lineHeight: 2, fontWeight: 500,
   },
   helpDot: {
     width: 4, height: 4, borderRadius: '50%',
-    background: '#E8342A', flexShrink: 0,
+    background: '#c89968', flexShrink: 0,
   },
 
   stepBox: {
-    background: '#16161b', border: '1px solid #1f1f24',
+    background: '#fff', border: '1px solid rgba(45,42,36,0.08)',
     borderRadius: 9, padding: '11px 14px',
     display: 'flex', flexDirection: 'column', gap: 9,
     marginBottom: 10,
@@ -1460,11 +1472,11 @@ const S: Record<string, React.CSSProperties> = {
     flexWrap: 'wrap',
   },
   stepLabel: {
-    fontSize: 9, fontWeight: 700, color: '#E8342A',
+    fontSize: 9, fontWeight: 700, color: '#c89968',
     letterSpacing: '0.14em', minWidth: 44,
   },
   stepDesc: {
-    fontSize: 12, color: '#a1a1aa', flex: 1, minWidth: 0,
+    fontSize: 12, color: 'rgba(45,42,36,0.7)', flex: 1, minWidth: 0,
   },
   stepNum: {
     width: 18, height: 18, borderRadius: '50%',
@@ -1473,17 +1485,17 @@ const S: Record<string, React.CSSProperties> = {
     fontSize: 10, fontWeight: 700, flexShrink: 0,
   },
   ntStep: {
-    fontSize: 12, color: '#3b82f6',
+    fontSize: 12, color: '#c89968',
     marginBottom: 10, fontWeight: 500,
-    padding: '7px 12px', background: 'rgba(59,130,246,0.08)',
-    border: '1px solid rgba(59,130,246,0.2)', borderRadius: 7,
+    padding: '7px 12px', background: 'rgba(200,153,104,0.1)',
+    border: '1px solid rgba(200,153,104,0.3)', borderRadius: 7,
   },
   sliderGrid: {
     display: 'flex', flexDirection: 'column', gap: 12,
     marginTop: 12,
   },
   sectionLabel: {
-    fontSize: 10, fontWeight: 700, color: '#71717a',
+    fontSize: 10, fontWeight: 700, color: 'rgba(45,42,36,0.5)',
     letterSpacing: '0.14em', marginBottom: 4,
     textTransform: 'uppercase',
   },
@@ -1494,11 +1506,11 @@ const S: Record<string, React.CSSProperties> = {
   },
   swatch: {
     width: 32, height: 32, borderRadius: 7,
-    border: '1px solid #2a2a31', flexShrink: 0,
+    border: '1px solid rgba(45,42,36,0.15)', flexShrink: 0,
   },
   select: {
-    flex: 1, background: '#16161b', border: '1px solid #2a2a31',
-    color: '#f5f5f7', padding: '9px 11px', borderRadius: 8,
+    flex: 1, background: '#fff', border: '1px solid rgba(45,42,36,0.15)',
+    color: '#2d2a24', padding: '9px 11px', borderRadius: 8,
     fontSize: 12, fontFamily: 'inherit', outline: 'none',
     minWidth: 0, cursor: 'pointer',
   },
@@ -1507,32 +1519,32 @@ const S: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 7, padding: '10px 14px', borderRadius: 8,
     fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
-    border: 'none', background: '#E8342A', color: '#fff',
+    border: 'none', background: '#c89968', color: '#fff',
     transition: 'all 0.15s', letterSpacing: '0.02em',
     cursor: 'pointer',
-    boxShadow: '0 1px 3px rgba(232,52,42,0.3)',
+    boxShadow: '0 1px 2px rgba(45,42,36,0.15)',
   },
   btnSecondary: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 7, padding: '10px 14px', borderRadius: 8,
     fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
-    border: '1px solid #2a2a31', background: '#16161b',
-    color: '#f5f5f7', transition: 'all 0.15s', cursor: 'pointer',
+    border: '1px solid rgba(45,42,36,0.15)', background: '#fff',
+    color: '#2d2a24', transition: 'all 0.15s', cursor: 'pointer',
   },
   btnGhost: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 6, padding: '9px 12px', borderRadius: 7,
     fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-    cursor: 'pointer', border: '1px solid #2a2a31',
-    background: '#16161b', color: '#a1a1aa',
+    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.15)',
+    background: '#fff', color: 'rgba(45,42,36,0.7)',
     transition: 'all 0.15s',
   },
   btnDanger: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 6, padding: '9px 12px', borderRadius: 7,
     fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-    cursor: 'pointer', border: '1px solid rgba(239,68,68,0.3)',
-    background: 'transparent', color: '#ef4444',
+    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.18)',
+    background: 'transparent', color: 'rgba(45,42,36,0.55)',
     transition: 'all 0.15s',
   },
   btnDangerOutline: {
@@ -1540,8 +1552,8 @@ const S: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     gap: 7, padding: '10px 14px', borderRadius: 8,
     fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-    cursor: 'pointer', border: '1px solid rgba(239,68,68,0.3)',
-    background: 'transparent', color: '#ef4444',
+    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.18)',
+    background: 'transparent', color: 'rgba(45,42,36,0.55)',
     transition: 'all 0.15s',
   },
 }
