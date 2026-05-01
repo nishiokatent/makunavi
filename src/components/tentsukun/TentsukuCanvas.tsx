@@ -108,6 +108,7 @@ export default function TentsukuCanvas() {
   const [ntLeftLabel, setNtLeftLabel] = useState('左妻面')
   const [ntRightLabel,setNtRightLabel]= useState('右妻面')
   const [swatchColor, setSwatchColor] = useState('transparent')
+  const [isWide,      setIsWide]      = useState(()=> typeof window!=='undefined' && window.innerWidth>=768)
 
   // Canvas-only mutable refs
   const srcImgRef    = useRef<HTMLImageElement|null>(null)
@@ -844,6 +845,12 @@ export default function TentsukuCanvas() {
 
   useEffect(()=>{render();},[render]);
 
+  useEffect(()=>{
+    const onResize=()=>setIsWide(window.innerWidth>=768);
+    window.addEventListener('resize',onResize);
+    return()=>window.removeEventListener('resize',onResize);
+  },[])
+
   // Sync fabric from idx
   useEffect(()=>{
     if(fabIdx===''||fabricDB.length===0){fabricRef.current=null;setSwatchColor('transparent');}
@@ -961,6 +968,25 @@ export default function TentsukuCanvas() {
   // ─────────────────────────────────────────
   // Render UI
   // ─────────────────────────────────────────
+  const mainStyle: React.CSSProperties = {
+    flex: 1, display: 'flex', minHeight: 0, minWidth: 0,
+    flexDirection: isWide ? 'row' : 'column',
+  }
+  const sidebarStyle: React.CSSProperties = {
+    background: '#faf6ed',
+    display: 'flex',
+    flexDirection: 'column',
+    flexShrink: 0,
+    width: isWide ? 340 : 'auto',
+    borderLeft: isWide ? '1px solid rgba(45,42,36,0.1)' : 'none',
+    borderTop: isWide ? 'none' : '1px solid rgba(45,42,36,0.1)',
+    minHeight: 0,
+  }
+  const tabContentStyle: React.CSSProperties = {
+    ...S.tabContent,
+    overflowY: 'auto', flex: 1, minHeight: 0,
+  }
+
   return (
     <div style={S.root}>
       {/* Header */}
@@ -982,8 +1008,8 @@ export default function TentsukuCanvas() {
         <div style={S.headerActions}>
           {appMode === 'replace' && srcImgRef.current && (
             <div style={S.pointBadge}>
-              <span style={{fontSize: 9, color: 'rgba(45,42,36,0.5)', letterSpacing: '0.14em', fontWeight: 600}}>POINTS</span>
-              <span style={{color: pointCount >= 3 ? '#c89968' : 'rgba(45,42,36,0.5)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', fontSize: 13, fontFamily: 'var(--font-roboto-mono), monospace'}}>{pointCount}</span>
+              <span style={{fontSize: 10, color: 'rgba(45,42,36,0.65)', letterSpacing: '0.14em', fontWeight: 700}}>POINTS</span>
+              <span style={{color: pointCount >= 3 ? '#a87a4d' : 'rgba(45,42,36,0.6)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', fontSize: 14, fontFamily: 'var(--font-roboto-mono), monospace'}}>{pointCount}</span>
             </div>
           )}
           <label style={S.uploadBtn}>
@@ -995,25 +1021,8 @@ export default function TentsukuCanvas() {
         </div>
       </header>
 
-      {/* Mode toggle */}
-      <div style={S.modeWrap}>
-        <div style={S.modeToggle}>
-          {([
-            ['replace', '張替シミュレーター', 'replace'],
-            ['new', '新調シミュレーター', 'sparkles'],
-          ] as [string, string, string][]).map(([key, label2, icon]) => (
-            <button key={key} onClick={()=>switchMode(key as 'replace'|'new')}
-              style={{
-                ...S.modeBtn,
-                ...(appMode === key ? S.modeBtnActive : {}),
-              }}>
-              <Icon name={icon} size={13}/>
-              <span>{label2}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
+      {/* Main: Canvas + right sidebar */}
+      <div style={mainStyle}>
       {/* Canvas */}
       <div ref={wrapRef} style={S.canvasWrap}>
         <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%'}} />
@@ -1056,8 +1065,27 @@ export default function TentsukuCanvas() {
         )}
       </div>
 
-      {/* Bottom panel */}
-      <div style={S.panel}>
+      {/* Sidebar (right) */}
+      <aside style={sidebarStyle}>
+        {/* Mode toggle */}
+        <div style={S.modeWrap}>
+          <div style={S.modeToggle}>
+            {([
+              ['replace', '張替', 'replace'],
+              ['new', '新調', 'sparkles'],
+            ] as [string, string, string][]).map(([key, label2, icon]) => (
+              <button key={key} onClick={()=>switchMode(key as 'replace'|'new')}
+                style={{
+                  ...S.modeBtn,
+                  ...(appMode === key ? S.modeBtnActive : {}),
+                }}>
+                <Icon name={icon} size={14}/>
+                <span>{label2}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div style={S.tabs}>
           {([
             ['draw', '形状', 'pen'],
@@ -1069,13 +1097,13 @@ export default function TentsukuCanvas() {
                 ...S.tab,
                 ...(activeTab === t ? S.tabActive : {}),
               }}>
-              <Icon name={icon} size={13}/>
+              <Icon name={icon} size={14}/>
               <span>{lbl}</span>
             </button>
           ))}
         </div>
 
-        <div style={S.tabContent}>
+        <div style={tabContentStyle}>
           {/* 形状タブ */}
           {activeTab === 'draw' && (
             <div>
@@ -1225,6 +1253,7 @@ export default function TentsukuCanvas() {
             </div>
           )}
         </div>
+      </aside>
       </div>
     </div>
   )
@@ -1267,9 +1296,9 @@ function Slider({ label, value, min, max, display, onChange }: {
 }) {
   return (
     <div>
-      <div style={{display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom: 6}}>
-        <span style={{fontSize: 11, color: 'rgba(45,42,36,0.6)', fontWeight: 600, letterSpacing: '0.02em'}}>{label}</span>
-        <span style={{fontSize: 11, color: '#c89968', fontWeight: 700, fontFamily: 'var(--font-roboto-mono), monospace'}}>
+      <div style={{display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom: 8}}>
+        <span style={{fontSize: 12, color: 'rgba(45,42,36,0.78)', fontWeight: 600, letterSpacing: '0.02em'}}>{label}</span>
+        <span style={{fontSize: 12, color: '#a87a4d', fontWeight: 700, fontFamily: 'var(--font-roboto-mono), monospace'}}>
           {display ?? String(value)}
         </span>
       </div>
@@ -1318,11 +1347,11 @@ const S: Record<string, React.CSSProperties> = {
   },
   brandName: {
     fontFamily: "'Noto Serif JP', serif",
-    fontSize: 15, fontWeight: 700, color: '#2d2a24',
+    fontSize: 16, fontWeight: 700, color: '#2d2a24',
     lineHeight: 1, letterSpacing: '0.02em',
   },
   brandSub: {
-    fontSize: 9, color: 'rgba(45,42,36,0.5)',
+    fontSize: 10, color: 'rgba(45,42,36,0.62)',
     letterSpacing: '0.18em', marginTop: 4,
     fontWeight: 600,
   },
@@ -1334,9 +1363,9 @@ const S: Record<string, React.CSSProperties> = {
   },
   uploadBtn: {
     display: 'flex', alignItems: 'center', gap: 7,
-    background: '#fff', border: '1px solid rgba(45,42,36,0.15)',
-    color: '#2d2a24', padding: '7px 12px', borderRadius: 7,
-    fontSize: 12, fontWeight: 500, cursor: 'pointer',
+    background: '#fff', border: '1px solid rgba(45,42,36,0.18)',
+    color: '#2d2a24', padding: '8px 13px', borderRadius: 7,
+    fontSize: 13, fontWeight: 600, cursor: 'pointer',
     transition: 'all 0.15s',
   },
 
@@ -1350,11 +1379,11 @@ const S: Record<string, React.CSSProperties> = {
   },
   modeBtn: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    gap: 7, padding: '8px 12px', background: 'transparent',
-    color: 'rgba(45,42,36,0.5)', border: 'none', borderRadius: 7,
-    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    gap: 7, padding: '9px 12px', background: 'transparent',
+    color: 'rgba(45,42,36,0.65)', border: 'none', borderRadius: 7,
+    fontSize: 13, fontWeight: 600, cursor: 'pointer',
     fontFamily: 'inherit', transition: 'all 0.15s',
-    letterSpacing: '0.02em',
+    letterSpacing: '0.04em',
   },
   modeBtnActive: {
     background: '#c89968', color: '#fff',
@@ -1379,21 +1408,21 @@ const S: Record<string, React.CSSProperties> = {
     transition: 'all 0.2s',
   },
   emptyTitle: {
-    color: 'rgba(245,241,232,0.95)', fontSize: 14, fontWeight: 600,
+    color: 'rgba(245,241,232,0.95)', fontSize: 15, fontWeight: 600,
     marginTop: 4,
   },
   emptySub: {
-    color: 'rgba(245,241,232,0.55)', fontSize: 12,
+    color: 'rgba(245,241,232,0.7)', fontSize: 13,
     textAlign: 'center', lineHeight: 1.7,
   },
   toast: {
     position: 'absolute', top: 14, left: '50%',
     transform: 'translateX(-50%)',
     background: '#faf6ed',
-    border: '1px solid', padding: '7px 14px',
-    borderRadius: 999, fontSize: 12, fontWeight: 500,
+    border: '1px solid', padding: '8px 16px',
+    borderRadius: 999, fontSize: 13, fontWeight: 600,
     whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
-    display: 'flex', alignItems: 'center', gap: 6,
+    display: 'flex', alignItems: 'center', gap: 7,
     boxShadow: '0 2px 10px rgba(45,42,36,0.18)',
   },
   beforeBadge: {
@@ -1436,16 +1465,16 @@ const S: Record<string, React.CSSProperties> = {
   tabs: { display: 'flex', borderBottom: '1px solid rgba(45,42,36,0.08)' },
   tab: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    gap: 7, padding: '12px 8px', background: 'transparent',
-    color: 'rgba(45,42,36,0.5)', border: 'none',
+    gap: 7, padding: '13px 8px', background: 'transparent',
+    color: 'rgba(45,42,36,0.62)', border: 'none',
     borderBottom: '2px solid transparent',
-    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    fontSize: 13, fontWeight: 600, cursor: 'pointer',
     fontFamily: 'inherit', transition: 'all 0.15s',
   },
   tabActive: {
     color: '#c89968', borderBottomColor: '#c89968',
   },
-  tabContent: { padding: '14px 18px' },
+  tabContent: { padding: '16px 18px' },
 
   helpBox: {
     background: '#fff', border: '1px solid rgba(45,42,36,0.08)',
@@ -1453,7 +1482,7 @@ const S: Record<string, React.CSSProperties> = {
   },
   helpRow: {
     display: 'flex', alignItems: 'center', gap: 10,
-    fontSize: 12, color: 'rgba(45,42,36,0.7)',
+    fontSize: 13, color: 'rgba(45,42,36,0.78)',
     lineHeight: 2, fontWeight: 500,
   },
   helpDot: {
@@ -1472,31 +1501,31 @@ const S: Record<string, React.CSSProperties> = {
     flexWrap: 'wrap',
   },
   stepLabel: {
-    fontSize: 9, fontWeight: 700, color: '#c89968',
-    letterSpacing: '0.14em', minWidth: 44,
+    fontSize: 10, fontWeight: 700, color: '#c89968',
+    letterSpacing: '0.14em', minWidth: 48,
   },
   stepDesc: {
-    fontSize: 12, color: 'rgba(45,42,36,0.7)', flex: 1, minWidth: 0,
+    fontSize: 13, color: 'rgba(45,42,36,0.78)', flex: 1, minWidth: 0,
   },
   stepNum: {
-    width: 18, height: 18, borderRadius: '50%',
+    width: 20, height: 20, borderRadius: '50%',
     color: '#fff', display: 'inline-flex',
     alignItems: 'center', justifyContent: 'center',
-    fontSize: 10, fontWeight: 700, flexShrink: 0,
+    fontSize: 11, fontWeight: 700, flexShrink: 0,
   },
   ntStep: {
-    fontSize: 12, color: '#c89968',
-    marginBottom: 10, fontWeight: 500,
-    padding: '7px 12px', background: 'rgba(200,153,104,0.1)',
-    border: '1px solid rgba(200,153,104,0.3)', borderRadius: 7,
+    fontSize: 13, color: '#a87a4d',
+    marginBottom: 10, fontWeight: 600,
+    padding: '8px 12px', background: 'rgba(200,153,104,0.12)',
+    border: '1px solid rgba(200,153,104,0.35)', borderRadius: 7,
   },
   sliderGrid: {
-    display: 'flex', flexDirection: 'column', gap: 12,
-    marginTop: 12,
+    display: 'flex', flexDirection: 'column', gap: 16,
+    marginTop: 14,
   },
   sectionLabel: {
-    fontSize: 10, fontWeight: 700, color: 'rgba(45,42,36,0.5)',
-    letterSpacing: '0.14em', marginBottom: 4,
+    fontSize: 11, fontWeight: 700, color: 'rgba(45,42,36,0.65)',
+    letterSpacing: '0.14em', marginBottom: 6,
     textTransform: 'uppercase',
   },
 
@@ -1509,9 +1538,9 @@ const S: Record<string, React.CSSProperties> = {
     border: '1px solid rgba(45,42,36,0.15)', flexShrink: 0,
   },
   select: {
-    flex: 1, background: '#fff', border: '1px solid rgba(45,42,36,0.15)',
-    color: '#2d2a24', padding: '9px 11px', borderRadius: 8,
-    fontSize: 12, fontFamily: 'inherit', outline: 'none',
+    flex: 1, background: '#fff', border: '1px solid rgba(45,42,36,0.18)',
+    color: '#2d2a24', padding: '10px 11px', borderRadius: 8,
+    fontSize: 13, fontFamily: 'inherit', outline: 'none',
     minWidth: 0, cursor: 'pointer',
   },
 
@@ -1533,27 +1562,27 @@ const S: Record<string, React.CSSProperties> = {
   },
   btnGhost: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    gap: 6, padding: '9px 12px', borderRadius: 7,
-    fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.15)',
-    background: '#fff', color: 'rgba(45,42,36,0.7)',
+    gap: 6, padding: '10px 12px', borderRadius: 7,
+    fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.18)',
+    background: '#fff', color: 'rgba(45,42,36,0.78)',
     transition: 'all 0.15s',
   },
   btnDanger: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    gap: 6, padding: '9px 12px', borderRadius: 7,
-    fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.18)',
-    background: 'transparent', color: 'rgba(45,42,36,0.55)',
+    gap: 6, padding: '10px 12px', borderRadius: 7,
+    fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.2)',
+    background: 'transparent', color: 'rgba(45,42,36,0.65)',
     transition: 'all 0.15s',
   },
   btnDangerOutline: {
     width: '100%',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    gap: 7, padding: '10px 14px', borderRadius: 8,
-    fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.18)',
-    background: 'transparent', color: 'rgba(45,42,36,0.55)',
+    gap: 7, padding: '11px 14px', borderRadius: 8,
+    fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+    cursor: 'pointer', border: '1px solid rgba(45,42,36,0.2)',
+    background: 'transparent', color: 'rgba(45,42,36,0.65)',
     transition: 'all 0.15s',
   },
 }
