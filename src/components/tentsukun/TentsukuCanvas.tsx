@@ -95,7 +95,7 @@ export default function TentsukuCanvas() {
   const [zoomLabel,   setZoomLabel]   = useState('100%')
   const [showBefore,  setShowBefore]  = useState(false)
   const [ntStep,      setNtStep]      = useState('')
-  const [ntGenLabel,  setNtGenLabel]  = useState('✨ テントを自動生成')
+  const [ntGenLabel,  setNtGenLabel]  = useState('テントを自動生成')
   const [ntAdjustVis, setNtAdjustVis] = useState(false)
   const [ntGenDis,    setNtGenDis]    = useState(true)
   const [brightNagare,setBrightNagare] = useState(10)
@@ -572,7 +572,7 @@ export default function TentsukuCanvas() {
     const FR={x:FRU.x,y:(FRUbaseY-(FRUbaseY-FRlineY)*fhr)-groundOffset};
     ntVertsRef.current={WLU,WL,WRU,WR,FLU,FL,FRU,FR,_wIsLeft:wIsLeft};
     ntAppliedRef.current=false;
-    setNtAdjustVis(true);setNtGenLabel('🔄 再生成');
+    setNtAdjustVis(true);setNtGenLabel('再生成');
     setNtLeftLabel(wIsLeft?'左妻面(W)':'左妻面(F)');
     setNtRightLabel(wIsLeft?'右妻面(F)':'右妻面(W)');
     syncApplyBtn();render();
@@ -749,7 +749,7 @@ export default function TentsukuCanvas() {
           ntPtsRef.current.push({x:ip.x,y:ip.y});
           const done=ntPtsRef.current.length>=5;
           setNtGenDis(!done);
-          const msgs=['① 奥行き線の一端をタップ','② 奥行き線のもう一端をタップ','③ 間口の一端をタップ','④ 間口のもう一端をタップ','⑤ テント取付高さをタップ','✅ 5点完了！「テントを自動生成」を押してください'];
+          const msgs=['1: 奥行き線の一端をタップ','2: 奥行き線のもう一端をタップ','3: 間口の一端をタップ','4: 間口のもう一端をタップ','5: テント取付高さをタップ','5点完了。「テントを自動生成」を押してください'];
           setNtStep(msgs[Math.min(ntPtsRef.current.length,5)]);
           render();
         }
@@ -944,7 +944,7 @@ export default function TentsukuCanvas() {
     ntPtsRef.current=[];ntVertsRef.current=null;ntAppliedRef.current=false;
     labelRef.current={...labelRef.current,visible:false};
     setPointCount(0);setCanApply(false);setCanExport(false);setNtAdjustVis(false);
-    setNtGenLabel('✨ テントを自動生成');setNtGenDis(true);setNtStep('');render();
+    setNtGenLabel('テントを自動生成');setNtGenDis(true);setNtStep('');render();
   }
 
   function switchMode(m:'replace'|'new'){
@@ -959,148 +959,191 @@ export default function TentsukuCanvas() {
   // Render UI
   // ─────────────────────────────────────────
   return (
-    <div style={{fontFamily:"'Noto Sans JP',sans-serif",background:'#0f0f0f',color:'#f0f0f0',display:'flex',flexDirection:'column',height:'100%',overflow:'hidden',userSelect:'none'}}>
+    <div style={S.root}>
       {/* Header */}
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',background:'#1a1a1a',borderBottom:'1px solid #2e2e2e',flexShrink:0,gap:8}}>
-        <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <svg viewBox="0 0 80 80" width="34" height="34" xmlns="http://www.w3.org/2000/svg" style={{flexShrink:0}}>
-            <circle cx="40" cy="40" r="37" fill="none" stroke="#c0392b" strokeWidth="2.5"/>
-            <circle cx="40" cy="40" r="33" fill="rgba(192,57,43,0.08)"/>
-            <text x="40" y="31" textAnchor="middle" dominantBaseline="middle" fontFamily="serif" fontSize="17" fontWeight="700" fill="#c0392b" letterSpacing="3">○○</text>
-            <line x1="18" y1="40" x2="62" y2="40" stroke="#c0392b" strokeWidth="0.8" opacity="0.6"/>
-            <text x="40" y="53" textAnchor="middle" dominantBaseline="middle" fontFamily="serif" fontSize="13" fontWeight="700" fill="#c0392b" letterSpacing="2">テント</text>
-          </svg>
-          <span style={{fontFamily:'monospace',fontSize:'0.75rem',fontWeight:500,color:'#e8ff47',letterSpacing:'0.05em'}}>てんつ君</span>
+      <header style={S.header}>
+        <div style={S.brand}>
+          <div style={S.brandLogo}>
+            <svg width="18" height="16" viewBox="0 0 22 19" fill="none">
+              <path d="M11 1 L21 18 H1 Z" fill="white" opacity="0.95"/>
+              <line x1="11" y1="1" x2="11" y2="18" stroke="rgba(232,52,42,0.5)" strokeWidth="1"/>
+              <rect x="8.5" y="11" width="5" height="7" rx="0.5" fill="rgba(232,52,42,0.35)"/>
+            </svg>
+          </div>
+          <div>
+            <div style={S.brandName}>てんつ君</div>
+            <div style={S.brandSub}>FABRIC SIMULATOR</div>
+          </div>
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          {appMode==='replace'&&(
-            <div style={{background:'#242424',border:'1px solid #2e2e2e',color:'#888',borderRadius:6,padding:'4px 8px',fontFamily:'monospace',fontSize:'0.72rem'}}>
-              頂点 <span style={{color:'#e8ff47',fontWeight:700}}>{pointCount}</span>
+
+        <div style={S.headerActions}>
+          {appMode === 'replace' && srcImgRef.current && (
+            <div style={S.pointBadge}>
+              <span style={{fontSize: 9, color: '#71717a', letterSpacing: '0.14em', fontWeight: 600}}>POINTS</span>
+              <span style={{color: pointCount >= 3 ? '#E8342A' : '#a1a1aa', fontWeight: 700, fontVariantNumeric: 'tabular-nums', fontSize: 13, fontFamily: 'var(--font-roboto-mono), monospace'}}>{pointCount}</span>
             </div>
           )}
-          <label style={{background:'#242424',border:'1px solid #2e2e2e',color:'#f0f0f0',padding:'7px 12px',borderRadius:8,fontSize:'0.78rem',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
-            📂
-            <input type="file" accept="image/*" style={{display:'none'}} onChange={e=>{const f=e.target.files?.[0];if(f)handleImageFile(f);e.target.value='';}} />
+          <label style={S.uploadBtn}>
+            <Icon name="upload" size={14}/>
+            <span>画像を開く</span>
+            <input type="file" accept="image/*" style={{display:'none'}}
+              onChange={e=>{const f=e.target.files?.[0];if(f)handleImageFile(f);e.target.value='';}} />
           </label>
         </div>
-      </div>
+      </header>
 
-      {/* Mode switcher */}
-      <div style={{display:'flex',background:'#242424',borderBottom:'1px solid #2e2e2e',flexShrink:0}}>
-        {([['replace','🔄 張替シミュレーター'],['new','✨ 新調シミュレーター']] as [string,string][]).map(([m,label2])=>(
-          <button key={m} onClick={()=>switchMode(m as 'replace'|'new')}
-            style={{flex:1,padding:'9px 8px',textAlign:'center',fontSize:'0.75rem',fontWeight:700,
-              color:appMode===m?'#e8ff47':'#888',cursor:'pointer',letterSpacing:'0.04em',
-              border:'none',background:'transparent',fontFamily:'inherit',
-              borderBottom:`2px solid ${appMode===m?'#e8ff47':'transparent'}`,transition:'all 0.2s'}}>
-            {label2}
-          </button>
-        ))}
-      </div>
-
-      {/* Canvas area */}
-      <div ref={wrapRef} style={{flex:1,position:'relative',overflow:'hidden',background:'#0a0a0a',touchAction:'none'}}>
-        <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%'}} />
-        {!srcImgRef.current&&(
-          <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,pointerEvents:'none'}}>
-            <div style={{width:64,height:64,border:'2px dashed #2e2e2e',borderRadius:16,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.8rem'}}>🏪</div>
-            <div style={{color:'#888',fontSize:'0.85rem',textAlign:'center',lineHeight:1.8}}>右上の 📂 から<br/>店舗写真を開いてください</div>
-          </div>
-        )}
-        {/* Status bar */}
-        {statusMsg&&(
-          <div style={{position:'absolute',top:12,left:'50%',transform:'translateX(-50%)',
-            background:'rgba(15,15,15,0.92)',border:`1px solid ${statusMsg.type==='success'?'#47ff8a':statusMsg.type==='error'?'#ff4747':'#47c8ff'}`,
-            color:statusMsg.type==='success'?'#47ff8a':statusMsg.type==='error'?'#ff4747':'#47c8ff',
-            padding:'6px 16px',borderRadius:20,fontSize:'0.75rem',whiteSpace:'nowrap',pointerEvents:'none',zIndex:20}}>
-            {statusMsg.text}
-          </div>
-        )}
-        {/* Zoom */}
-        <div style={{position:'absolute',bottom:12,right:12,background:'rgba(15,15,15,0.85)',border:'1px solid #2e2e2e',color:'#888',padding:'4px 10px',borderRadius:20,fontFamily:'monospace',fontSize:'0.68rem',pointerEvents:'none'}}>
-          {zoomLabel}
+      {/* Mode toggle */}
+      <div style={S.modeWrap}>
+        <div style={S.modeToggle}>
+          {([
+            ['replace', '張替シミュレーター', 'replace'],
+            ['new', '新調シミュレーター', 'sparkles'],
+          ] as [string, string, string][]).map(([key, label2, icon]) => (
+            <button key={key} onClick={()=>switchMode(key as 'replace'|'new')}
+              style={{
+                ...S.modeBtn,
+                ...(appMode === key ? S.modeBtnActive : {}),
+              }}>
+              <Icon name={icon} size={13}/>
+              <span>{label2}</span>
+            </button>
+          ))}
         </div>
-        {/* Before/After overlay */}
-        {showBefore&&(
-          <div style={{position:'absolute',top:12,left:'50%',transform:'translateX(-50%)',background:'rgba(15,15,15,0.9)',border:'1px solid #47c8ff',color:'#47c8ff',padding:'5px 18px',borderRadius:20,fontSize:'0.72rem',fontFamily:'monospace',fontWeight:700,letterSpacing:'0.1em',pointerEvents:'none',zIndex:10}}>
-            BEFORE
+      </div>
+
+      {/* Canvas */}
+      <div ref={wrapRef} style={S.canvasWrap}>
+        <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%'}} />
+
+        {!srcImgRef.current && (
+          <div style={S.emptyState}>
+            <div style={S.emptyIcon}>
+              <Icon name="image" size={28}/>
+            </div>
+            <div style={S.emptyTitle}>画像を開いてください</div>
+            <div style={S.emptySub}>テントの写真を読み込んで<br/>シミュレーションを開始</div>
           </div>
         )}
-        {/* Before button */}
-        {appMode==='replace'&&canExport&&(
-          <button
-            style={{position:'absolute',bottom:12,left:12,background:'rgba(15,15,15,0.88)',border:'1px solid rgba(255,255,255,0.25)',color:'#f0f0f0',padding:'7px 16px',borderRadius:20,fontSize:'0.72rem',fontWeight:700,fontFamily:'inherit',cursor:'pointer',zIndex:10,letterSpacing:'0.05em'}}
+
+        {statusMsg && (
+          <div style={{
+            ...S.toast,
+            borderColor: statusMsg.type === 'success' ? '#10b981' : statusMsg.type === 'error' ? '#ef4444' : '#3b82f6',
+            color: statusMsg.type === 'success' ? '#10b981' : statusMsg.type === 'error' ? '#ef4444' : '#3b82f6',
+          }}>
+            <Icon name={statusMsg.type === 'success' ? 'check' : 'info'} size={12}/>
+            <span>{statusMsg.text}</span>
+          </div>
+        )}
+
+        {showBefore && <div style={S.beforeBadge}>BEFORE</div>}
+
+        <div style={S.zoomBadge}>{zoomLabel}</div>
+
+        {appMode === 'replace' && canExport && (
+          <button style={S.beforeBtn}
             onPointerDown={e=>{e.preventDefault();setShowBefore(true);}}
             onPointerUp={e=>{e.preventDefault();setShowBefore(false);}}
             onPointerLeave={e=>{e.preventDefault();setShowBefore(false);}}>
-            👁 BEFORE
+            <Icon name="eye" size={13}/>
+            <span>BEFORE</span>
           </button>
         )}
       </div>
 
       {/* Bottom panel */}
-      <div style={{background:'#1a1a1a',borderTop:'1px solid #2e2e2e',flexShrink:0}}>
-        {/* Tabs */}
-        <div style={{display:'flex',borderBottom:'1px solid #2e2e2e'}}>
-          {([['draw','✏️ 選択'],['fabric','🎨 生地'],['export','💾 出力']] as [string,string][]).map(([t,lbl])=>(
-            <div key={t} onClick={()=>setActiveTab(t as typeof activeTab)}
-              style={{flex:1,padding:10,textAlign:'center',fontSize:'0.72rem',fontWeight:600,letterSpacing:'0.04em',cursor:'pointer',transition:'all 0.2s',
-                color:activeTab===t?'#e8ff47':'#888',borderBottom:`2px solid ${activeTab===t?'#e8ff47':'transparent'}`}}>
-              {lbl}
-            </div>
+      <div style={S.panel}>
+        <div style={S.tabs}>
+          {([
+            ['draw', '形状', 'pen'],
+            ['fabric', '生地', 'palette'],
+            ['export', '出力', 'download'],
+          ] as [string, string, string][]).map(([t, lbl, icon]) => (
+            <button key={t} onClick={()=>setActiveTab(t as typeof activeTab)}
+              style={{
+                ...S.tab,
+                ...(activeTab === t ? S.tabActive : {}),
+              }}>
+              <Icon name={icon} size={13}/>
+              <span>{lbl}</span>
+            </button>
           ))}
         </div>
 
-        {/* Tab content */}
-        <div style={{padding:'12px 16px'}}>
-          {/* ── 選択タブ ── */}
-          {activeTab==='draw'&&(
+        <div style={S.tabContent}>
+          {/* 形状タブ */}
+          {activeTab === 'draw' && (
             <div>
-              {appMode==='replace'&&(
+              {appMode === 'replace' && (
                 <div>
-                  <div style={{fontSize:'0.68rem',color:'#888',lineHeight:1.7,padding:'7px 10px',background:'#242424',borderRadius:8,borderLeft:'2px solid #47c8ff',marginBottom:8}}>
-                    📌 タップで頂点追加　✋ ドラッグで移動　🗑 長押しで削除<br/>
-                    🔍 2本指ピンチでズーム　辺をタップで頂点挿入
+                  <div style={S.helpBox}>
+                    <div style={S.helpRow}><span style={S.helpDot}/><span>タップで頂点を追加</span></div>
+                    <div style={S.helpRow}><span style={S.helpDot}/><span>ドラッグで頂点を移動</span></div>
+                    <div style={S.helpRow}><span style={S.helpDot}/><span>長押しで頂点を削除</span></div>
+                    <div style={S.helpRow}><span style={S.helpDot}/><span>辺をタップで頂点を挿入</span></div>
                   </div>
-                  <div style={{display:'flex',gap:8}}>
-                    <button onClick={undoPoint} style={ghostBtn}>↩ 戻す</button>
-                    <button onClick={clearPoints} style={dangerBtn}>🗑 消去</button>
+                  <div style={{display:'flex', gap: 8, marginTop: 12}}>
+                    <button onClick={undoPoint} style={S.btnGhost}>
+                      <Icon name="undo" size={13}/><span>戻す</span>
+                    </button>
+                    <button onClick={clearPoints} style={S.btnDanger}>
+                      <Icon name="trash" size={13}/><span>消去</span>
+                    </button>
                   </div>
                 </div>
               )}
-              {appMode==='new'&&(
+
+              {appMode === 'new' && (
                 <div>
-                  <div style={{fontSize:'0.68rem',color:'#888',lineHeight:1.7,padding:'7px 10px',background:'#242424',borderRadius:8,borderLeft:'2px solid #47ff8a',marginBottom:8}}>
-                    <b style={{color:'#f0f0f0'}}>Step 1</b>　奥行きを感じる線の両端をタップ<span style={{background:'#ff9f00',color:'#000',borderRadius:'50%',display:'inline-flex',width:18,height:18,alignItems:'center',justifyContent:'center',fontSize:'0.65rem',fontWeight:700,margin:'0 2px'}}>1</span><span style={{background:'#ff9f00',color:'#000',borderRadius:'50%',display:'inline-flex',width:18,height:18,alignItems:'center',justifyContent:'center',fontSize:'0.65rem',fontWeight:700,margin:'0 2px'}}>2</span><br/>
-                    <b style={{color:'#f0f0f0'}}>Step 2</b>　テント間口の両端<span style={{background:'#e8ff47',color:'#000',borderRadius:'50%',display:'inline-flex',width:18,height:18,alignItems:'center',justifyContent:'center',fontSize:'0.65rem',fontWeight:700,margin:'0 2px'}}>3</span><span style={{background:'#47c8ff',color:'#000',borderRadius:'50%',display:'inline-flex',width:18,height:18,alignItems:'center',justifyContent:'center',fontSize:'0.65rem',fontWeight:700,margin:'0 2px'}}>4</span><br/>
-                    <b style={{color:'#f0f0f0'}}>Step 3</b>　<span style={{background:'#ff4747',color:'#fff',borderRadius:'50%',display:'inline-flex',width:18,height:18,alignItems:'center',justifyContent:'center',fontSize:'0.65rem',fontWeight:700,margin:'0 2px'}}>5</span>取付高さ → 自動生成
+                  <div style={S.stepBox}>
+                    <div style={S.step}>
+                      <span style={S.stepLabel}>STEP 1</span>
+                      <span style={S.stepDesc}>奥行き線の両端</span>
+                      <span style={{...S.stepNum, background: '#f59e0b'}}>1</span>
+                      <span style={{...S.stepNum, background: '#f59e0b'}}>2</span>
+                    </div>
+                    <div style={S.step}>
+                      <span style={S.stepLabel}>STEP 2</span>
+                      <span style={S.stepDesc}>テント間口の両端</span>
+                      <span style={{...S.stepNum, background: '#fbbf24', color: '#1a1a1a'}}>3</span>
+                      <span style={{...S.stepNum, background: '#3b82f6'}}>4</span>
+                    </div>
+                    <div style={S.step}>
+                      <span style={S.stepLabel}>STEP 3</span>
+                      <span style={S.stepDesc}>テント取付高さ</span>
+                      <span style={{...S.stepNum, background: '#ef4444'}}>5</span>
+                    </div>
                   </div>
-                  {ntStep&&<div style={{fontSize:'0.72rem',color:'#47c8ff',marginBottom:6,minHeight:'1.2em'}}>{ntStep}</div>}
-                  <div style={{display:'flex',gap:8,marginBottom:8}}>
+
+                  {ntStep && <div style={S.ntStep}>{ntStep}</div>}
+
+                  <div style={{display:'flex', gap: 8, marginBottom: 10}}>
                     <button onClick={()=>{
-                      if(ntVertsRef.current){ntVertsRef.current=null;ntAppliedRef.current=false;setNtAdjustVis(false);setNtGenLabel('✨ テントを自動生成');}
-                      else if(ntPtsRef.current.length>0){ntPtsRef.current.pop();setNtGenDis(ntPtsRef.current.length<5);const msgs=['① 奥行き線の一端をタップ','② 奥行き線のもう一端をタップ','③ 間口の一端をタップ','④ 間口のもう一端をタップ','⑤ テント取付高さをタップ','✅ 5点完了！'];setNtStep(msgs[Math.min(ntPtsRef.current.length,5)]);}
+                      if(ntVertsRef.current){ntVertsRef.current=null;ntAppliedRef.current=false;setNtAdjustVis(false);setNtGenLabel('テントを自動生成');}
+                      else if(ntPtsRef.current.length>0){ntPtsRef.current.pop();setNtGenDis(ntPtsRef.current.length<5);const msgs=['1: 奥行き線の一端をタップ','2: 奥行き線のもう一端をタップ','3: 間口の一端をタップ','4: 間口のもう一端をタップ','5: テント取付高さをタップ','5点完了'];setNtStep(msgs[Math.min(ntPtsRef.current.length,5)]);}
                       render();
-                    }} style={ghostBtn}>↩ 戻す</button>
-                    <button onClick={()=>{ntPtsRef.current=[];ntVertsRef.current=null;ntAppliedRef.current=false;setNtAdjustVis(false);setNtGenDis(true);setNtGenLabel('✨ テントを自動生成');setNtStep('');render();}} style={dangerBtn}>🗑 消去</button>
+                    }} style={S.btnGhost}>
+                      <Icon name="undo" size={13}/><span>戻す</span>
+                    </button>
+                    <button onClick={()=>{ntPtsRef.current=[];ntVertsRef.current=null;ntAppliedRef.current=false;setNtAdjustVis(false);setNtGenDis(true);setNtGenLabel('テントを自動生成');setNtStep('');render();}} style={S.btnDanger}>
+                      <Icon name="trash" size={13}/><span>消去</span>
+                    </button>
                   </div>
+
                   <button disabled={ntGenDis} onClick={ntGenerate}
-                    style={{...primaryBtn,width:'100%',opacity:ntGenDis?0.35:1,cursor:ntGenDis?'not-allowed':'pointer'}}>
-                    {ntGenLabel}
+                    style={{...S.btnPrimary, width: '100%', opacity: ntGenDis ? 0.4 : 1, cursor: ntGenDis ? 'not-allowed' : 'pointer'}}>
+                    <Icon name="sparkles" size={14}/>
+                    <span>{ntGenLabel}</span>
                   </button>
-                  {ntAdjustVis&&(
-                    <div style={{marginTop:8}}>
-                      {([['出幅',depthVal,5,60,v=>{depthRef.current=v;setDepthVal(v);if(ntVertsRef.current)ntAdjustShape();else if(ntPtsRef.current.length===5)ntGenerate();},'%'],
-                         ['前高さ',frontHVal,10,100,v=>{frontHRef.current=v;setFrontHVal(v);if(ntVertsRef.current)ntAdjustShape();else if(ntPtsRef.current.length===5)ntGenerate();},'%'],
-                         ['地上高',groundVal,0,60,v=>{groundRef.current=v;setGroundVal(v);if(ntVertsRef.current)ntAdjustShape();else if(ntPtsRef.current.length===5)ntGenerate();},'%'],
-                      ] as [string,number,number,number,(v:number)=>void,string][]).map(([lbl,val,min2,max2,fn,unit])=>(
-                        <div key={lbl} style={{display:'flex',gap:8,alignItems:'center',marginBottom:8}}>
-                          <label style={{fontSize:'0.72rem',color:'#888',fontWeight:600,minWidth:48}}>{lbl}</label>
-                          <input type="range" min={min2} max={max2} value={val} style={{flex:1,accentColor:'#e8ff47'}}
-                            onChange={e=>fn(+e.target.value)} />
-                          <span style={{fontFamily:'monospace',fontSize:'0.72rem',color:'#e8ff47',minWidth:36,textAlign:'right'}}>{val}{unit}</span>
-                        </div>
-                      ))}
+
+                  {ntAdjustVis && (
+                    <div style={S.sliderGrid}>
+                      <Slider label="出幅" value={depthVal} min={5} max={60} display={`${depthVal}%`}
+                        onChange={v=>{depthRef.current=v;setDepthVal(v);if(ntVertsRef.current)ntAdjustShape();else if(ntPtsRef.current.length===5)ntGenerate();}} />
+                      <Slider label="前高さ" value={frontHVal} min={10} max={100} display={`${frontHVal}%`}
+                        onChange={v=>{frontHRef.current=v;setFrontHVal(v);if(ntVertsRef.current)ntAdjustShape();else if(ntPtsRef.current.length===5)ntGenerate();}} />
+                      <Slider label="地上高" value={groundVal} min={0} max={60} display={`${groundVal}%`}
+                        onChange={v=>{groundRef.current=v;setGroundVal(v);if(ntVertsRef.current)ntAdjustShape();else if(ntPtsRef.current.length===5)ntGenerate();}} />
                     </div>
                   )}
                 </div>
@@ -1108,81 +1151,72 @@ export default function TentsukuCanvas() {
             </div>
           )}
 
-          {/* ── 生地タブ ── */}
-          {activeTab==='fabric'&&(
+          {/* 生地タブ */}
+          {activeTab === 'fabric' && (
             <div>
-              <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:8}}>
-                <label style={{fontSize:'0.72rem',color:'#888',fontWeight:600,minWidth:48}}>生地</label>
-                <div style={{width:20,height:20,borderRadius:4,border:'1px solid #2e2e2e',background:swatchColor,flexShrink:0}} />
+              <div style={S.fabricRow}>
+                <div style={{...S.swatch, background: swatchColor}} />
                 <select value={fabIdx} onChange={e=>{setFabIdx(e.target.value);saveSettings();}}
-                  style={{flex:1,background:'#242424',border:'1px solid #2e2e2e',color:'#f0f0f0',padding:'8px 10px',borderRadius:8,fontSize:'0.8rem',fontFamily:'inherit',outline:'none',minWidth:0}}>
-                  <option value=''>生地を選択...</option>
+                  style={S.select}>
+                  <option value=''>生地を選択</option>
                   {fabricDB.map((f,i)=>(
-                    <option key={i} value={i}>{f.maker} {f.name} {f.code} - {f.color}</option>
+                    <option key={i} value={i}>{f.maker} / {f.name} / {f.code} - {f.color}</option>
                   ))}
                 </select>
               </div>
 
-              {appMode==='replace'&&(
-                <div>
-                  {([['質感',blend,0,100,v=>{blendRef.current=v/100;setBlend(v);const bl=v/100;setBlendLabel(bl<0.2?'自然':bl<0.5?'中間寄り':bl<0.8?'中間':'発色');if(appliedRef.current)render();saveSettings();},'blendLabel'],[
-                    '影',contrast,-50,100,v=>{contrastRef.current=v;setContrast(v);const ct=v;setCtLabel(ct<-20?'弱め':ct<20?'標準':ct<60?'強め':'強調');ccRef.current={cache:null,val:null};if(appliedRef.current)render();saveSettings();},'ctLabel'],
-                  ] as [string,number,number,number,(v:number)=>void,string][]).map(([lbl,val,min2,max2,fn,labelKey])=>(
-                    <div key={lbl} style={{marginBottom:6}}>
-                      <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                        <label style={{fontSize:'0.72rem',color:'#888',fontWeight:600,minWidth:48}}>{lbl}</label>
-                        <input type="range" min={min2} max={max2} value={val} style={{flex:1,accentColor:'#e8ff47'}}
-                          onChange={e=>fn(+e.target.value)} />
-                        <span style={{fontFamily:'monospace',fontSize:'0.72rem',color:'#e8ff47',minWidth:36,textAlign:'right'}}>
-                          {labelKey==='blendLabel'?blendLabel:ctLabel}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+              {appMode === 'replace' && (
+                <div style={S.sliderGrid}>
+                  <Slider label="質感" value={blend} min={0} max={100} display={blendLabel}
+                    onChange={v=>{blendRef.current=v/100;setBlend(v);const bl=v/100;setBlendLabel(bl<0.2?'自然':bl<0.5?'中間寄り':bl<0.8?'中間':'発色');if(appliedRef.current)render();saveSettings();}} />
+                  <Slider label="影" value={contrast} min={-50} max={100} display={ctLabel}
+                    onChange={v=>{contrastRef.current=v;setContrast(v);const ct=v;setCtLabel(ct<-20?'弱め':ct<20?'標準':ct<60?'強め':'強調');ccRef.current={cache:null,val:null};if(appliedRef.current)render();saveSettings();}} />
                 </div>
               )}
 
-              {appMode==='new'&&(
+              {appMode === 'new' && (
                 <div>
-                  <div style={{fontSize:'0.68rem',color:'#888',margin:'4px 0 6px'}}>面ごとの明るさ調整</div>
-                  {([[ntLeftLabel,brightLeft,v=>{brightRef.current.left=v;setBrightLeft(v);if(ntAppliedRef.current)render();}],
-                     [ntRightLabel,brightRight,v=>{brightRef.current.right=v;setBrightRight(v);if(ntAppliedRef.current)render();}],
-                     ['流れ面',brightNagare,v=>{brightRef.current.nagare=v;setBrightNagare(v);if(ntAppliedRef.current)render();}],
-                     ['前面',brightFront,v=>{brightRef.current.front=v;setBrightFront(v);if(ntAppliedRef.current)render();}],
-                  ] as [string,number,(v:number)=>void][]).map(([lbl,val,fn])=>(
-                    <div key={lbl} style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
-                      <label style={{fontSize:'0.72rem',color:'#888',fontWeight:600,minWidth:60}}>{lbl}</label>
-                      <input type="range" min={-80} max={80} value={val} style={{flex:1,accentColor:'#e8ff47'}}
-                        onChange={e=>fn(+e.target.value)} />
-                      <span style={{fontFamily:'monospace',fontSize:'0.72rem',color:'#e8ff47',minWidth:36,textAlign:'right'}}>
-                        {val>0?'+':''}{val}
-                      </span>
-                    </div>
-                  ))}
+                  <div style={S.sectionLabel}>面ごとの明るさ</div>
+                  <div style={S.sliderGrid}>
+                    <Slider label={ntLeftLabel} value={brightLeft} min={-80} max={80} display={`${brightLeft>0?'+':''}${brightLeft}`}
+                      onChange={v=>{brightRef.current.left=v;setBrightLeft(v);if(ntAppliedRef.current)render();}} />
+                    <Slider label={ntRightLabel} value={brightRight} min={-80} max={80} display={`${brightRight>0?'+':''}${brightRight}`}
+                      onChange={v=>{brightRef.current.right=v;setBrightRight(v);if(ntAppliedRef.current)render();}} />
+                    <Slider label="流れ面" value={brightNagare} min={-80} max={80} display={`${brightNagare>0?'+':''}${brightNagare}`}
+                      onChange={v=>{brightRef.current.nagare=v;setBrightNagare(v);if(ntAppliedRef.current)render();}} />
+                    <Slider label="前面" value={brightFront} min={-80} max={80} display={`${brightFront>0?'+':''}${brightFront}`}
+                      onChange={v=>{brightRef.current.front=v;setBrightFront(v);if(ntAppliedRef.current)render();}} />
+                  </div>
                 </div>
               )}
 
               <button disabled={!canApply} onClick={applyFabric}
-                style={{...primaryBtn,width:'100%',marginTop:4,opacity:canApply?1:0.35,cursor:canApply?'pointer':'not-allowed'}}>
-                🎨 生地を適用
+                style={{...S.btnPrimary, width: '100%', marginTop: 14, opacity: canApply ? 1 : 0.4, cursor: canApply ? 'pointer' : 'not-allowed'}}>
+                <Icon name="palette" size={14}/>
+                <span>生地を適用</span>
               </button>
             </div>
           )}
 
-          {/* ── 出力タブ ── */}
-          {activeTab==='export'&&(
+          {/* 出力タブ */}
+          {activeTab === 'export' && (
             <div>
-              <div style={{display:'flex',gap:8,marginBottom:8}}>
+              <div style={{display:'flex', gap: 8, marginBottom: 8}}>
                 <button disabled={!canExport} onClick={downloadImage}
-                  style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'9px 14px',borderRadius:8,fontSize:'0.78rem',fontWeight:700,fontFamily:'inherit',cursor:canExport?'pointer':'not-allowed',border:'none',background:'#47ff8a',color:'#0f0f0f',opacity:canExport?1:0.35}}>
-                  💾 保存
+                  style={{...S.btnPrimary, flex: 1, opacity: canExport ? 1 : 0.4, cursor: canExport ? 'pointer' : 'not-allowed'}}>
+                  <Icon name="download" size={14}/>
+                  <span>保存</span>
                 </button>
                 <button disabled={!canExport} onClick={shareImage}
-                  style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'9px 14px',borderRadius:8,fontSize:'0.78rem',fontWeight:700,fontFamily:'inherit',cursor:canExport?'pointer':'not-allowed',border:'none',background:'#007aff',color:'#fff',opacity:canExport?1:0.35}}>
-                  📤 シェア
+                  style={{...S.btnSecondary, flex: 1, opacity: canExport ? 1 : 0.4, cursor: canExport ? 'pointer' : 'not-allowed'}}>
+                  <Icon name="share" size={14}/>
+                  <span>共有</span>
                 </button>
               </div>
-              <button onClick={resetAll} style={{...ghostBtn,width:'100%',color:'#ff4747',borderColor:'#ff4747'}}>🔄 リセット</button>
+              <button onClick={resetAll} style={S.btnDangerOutline}>
+                <Icon name="reset" size={14}/>
+                <span>すべてリセット</span>
+              </button>
             </div>
           )}
         </div>
@@ -1191,22 +1225,323 @@ export default function TentsukuCanvas() {
   )
 }
 
-// Shared button styles
-const primaryBtn: React.CSSProperties = {
-  display:'flex',alignItems:'center',justifyContent:'center',gap:6,
-  padding:'9px 14px',borderRadius:8,fontSize:'0.78rem',fontWeight:700,
-  fontFamily:'inherit',border:'none',background:'#e8ff47',color:'#0f0f0f',
-  transition:'all 0.15s',letterSpacing:'0.03em',
+// ─────────────────────────────────────────
+// Icon
+// ─────────────────────────────────────────
+function Icon({ name, size = 16 }: { name: string; size?: number }) {
+  const p = {
+    width: size, height: size, viewBox: '0 0 24 24',
+    fill: 'none', stroke: 'currentColor',
+    strokeWidth: 1.7, strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  }
+  switch (name) {
+    case 'upload':   return <svg {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    case 'replace':  return <svg {...p}><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+    case 'sparkles': return <svg {...p}><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>
+    case 'pen':      return <svg {...p}><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+    case 'palette':  return <svg {...p}><circle cx="13.5" cy="6.5" r=".7" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".7" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".7" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".7" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+    case 'download': return <svg {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    case 'share':    return <svg {...p}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    case 'eye':      return <svg {...p}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+    case 'trash':    return <svg {...p}><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    case 'undo':     return <svg {...p}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+    case 'reset':    return <svg {...p}><path d="M21 12a9 9 0 1 1-3.51-7.13"/><path d="M21 4v6h-6"/></svg>
+    case 'image':    return <svg {...p}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+    case 'check':    return <svg {...p}><polyline points="20 6 9 17 4 12"/></svg>
+    case 'info':     return <svg {...p}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    default: return null
+  }
 }
-const ghostBtn: React.CSSProperties = {
-  flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,
-  padding:'9px 14px',borderRadius:8,fontSize:'0.78rem',fontWeight:700,
-  fontFamily:'inherit',cursor:'pointer',border:'1px solid #2e2e2e',
-  background:'#242424',color:'#f0f0f0',transition:'all 0.15s',
+
+// ─────────────────────────────────────────
+// Slider
+// ─────────────────────────────────────────
+function Slider({ label, value, min, max, display, onChange }: {
+  label: string; value: number; min: number; max: number; display?: string; onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <div style={{display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom: 6}}>
+        <span style={{fontSize: 11, color: '#a1a1aa', fontWeight: 600, letterSpacing: '0.02em'}}>{label}</span>
+        <span style={{fontSize: 11, color: '#E8342A', fontWeight: 600, fontFamily: 'var(--font-roboto-mono), monospace'}}>
+          {display ?? String(value)}
+        </span>
+      </div>
+      <input type="range" min={min} max={max} value={value}
+        onChange={e=>onChange(+e.target.value)}
+        style={{width: '100%', accentColor: '#E8342A', cursor: 'pointer'}} />
+    </div>
+  )
 }
-const dangerBtn: React.CSSProperties = {
-  flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,
-  padding:'9px 14px',borderRadius:8,fontSize:'0.78rem',fontWeight:700,
-  fontFamily:'inherit',cursor:'pointer',border:'1px solid #ff4747',
-  background:'transparent',color:'#ff4747',transition:'all 0.15s',
+
+// ─────────────────────────────────────────
+// Styles
+// ─────────────────────────────────────────
+const S: Record<string, React.CSSProperties> = {
+  root: {
+    fontFamily: "'Noto Sans JP', sans-serif",
+    background: '#0a0a0d',
+    color: '#f5f5f7',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    overflow: 'hidden',
+    userSelect: 'none',
+  },
+
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '11px 18px',
+    background: '#0f0f12',
+    borderBottom: '1px solid #1f1f24',
+    flexShrink: 0,
+    gap: 12,
+  },
+  brand: { display: 'flex', alignItems: 'center', gap: 11 },
+  brandLogo: {
+    width: 34, height: 34, borderRadius: 9,
+    background: 'linear-gradient(135deg, #E8342A 0%, #c42820 100%)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 2px 8px rgba(232,52,42,0.25)',
+    flexShrink: 0,
+  },
+  brandName: {
+    fontFamily: "'Noto Serif JP', serif",
+    fontSize: 15, fontWeight: 700, color: '#f5f5f7',
+    lineHeight: 1, letterSpacing: '0.02em',
+  },
+  brandSub: {
+    fontSize: 9, color: '#71717a',
+    letterSpacing: '0.18em', marginTop: 4,
+    fontWeight: 600,
+  },
+  headerActions: { display: 'flex', alignItems: 'center', gap: 8 },
+  pointBadge: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    background: '#16161b', border: '1px solid #2a2a31',
+    padding: '6px 11px', borderRadius: 7,
+  },
+  uploadBtn: {
+    display: 'flex', alignItems: 'center', gap: 7,
+    background: '#16161b', border: '1px solid #2a2a31',
+    color: '#f5f5f7', padding: '7px 12px', borderRadius: 7,
+    fontSize: 12, fontWeight: 500, cursor: 'pointer',
+    transition: 'background 0.15s',
+  },
+
+  modeWrap: {
+    padding: '10px 18px', background: '#0f0f12',
+    borderBottom: '1px solid #1f1f24', flexShrink: 0,
+  },
+  modeToggle: {
+    display: 'flex', background: '#16161b',
+    border: '1px solid #2a2a31', borderRadius: 9, padding: 3, gap: 2,
+  },
+  modeBtn: {
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 7, padding: '8px 12px', background: 'transparent',
+    color: '#71717a', border: 'none', borderRadius: 7,
+    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    fontFamily: 'inherit', transition: 'all 0.15s',
+    letterSpacing: '0.02em',
+  },
+  modeBtnActive: {
+    background: '#E8342A', color: '#fff',
+    boxShadow: '0 1px 3px rgba(232,52,42,0.35)',
+  },
+
+  canvasWrap: {
+    flex: 1, position: 'relative', overflow: 'hidden',
+    background: '#050507', touchAction: 'none',
+  },
+  emptyState: {
+    position: 'absolute', inset: 0,
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 14, pointerEvents: 'none',
+  },
+  emptyIcon: {
+    width: 64, height: 64,
+    border: '1.5px dashed #2a2a31', borderRadius: 14,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#71717a',
+  },
+  emptyTitle: {
+    color: '#a1a1aa', fontSize: 14, fontWeight: 600,
+    marginTop: 4,
+  },
+  emptySub: {
+    color: '#71717a', fontSize: 12,
+    textAlign: 'center', lineHeight: 1.7,
+  },
+  toast: {
+    position: 'absolute', top: 14, left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'rgba(15,15,18,0.95)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid', padding: '7px 14px',
+    borderRadius: 999, fontSize: 12, fontWeight: 500,
+    whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
+    display: 'flex', alignItems: 'center', gap: 6,
+  },
+  beforeBadge: {
+    position: 'absolute', top: 14, left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'rgba(15,15,18,0.95)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid #3b82f6', color: '#3b82f6',
+    padding: '5px 18px', borderRadius: 999,
+    fontSize: 11, fontWeight: 700,
+    letterSpacing: '0.18em',
+    pointerEvents: 'none', zIndex: 10,
+  },
+  zoomBadge: {
+    position: 'absolute', bottom: 14, right: 14,
+    background: 'rgba(15,15,18,0.85)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid #2a2a31',
+    color: '#a1a1aa', padding: '4px 10px', borderRadius: 999,
+    fontFamily: 'var(--font-roboto-mono), monospace',
+    fontSize: 11, pointerEvents: 'none', fontWeight: 500,
+  },
+  beforeBtn: {
+    position: 'absolute', bottom: 14, left: 14,
+    display: 'flex', alignItems: 'center', gap: 6,
+    background: 'rgba(15,15,18,0.92)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid #3a3a42', color: '#f5f5f7',
+    padding: '7px 14px', borderRadius: 999,
+    fontSize: 11, fontWeight: 600, fontFamily: 'inherit',
+    letterSpacing: '0.06em', cursor: 'pointer', zIndex: 10,
+  },
+
+  panel: {
+    background: '#0f0f12', borderTop: '1px solid #1f1f24', flexShrink: 0,
+  },
+  tabs: { display: 'flex', borderBottom: '1px solid #1f1f24' },
+  tab: {
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 7, padding: '12px 8px', background: 'transparent',
+    color: '#71717a', border: 'none',
+    borderBottom: '2px solid transparent',
+    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    fontFamily: 'inherit', transition: 'all 0.15s',
+  },
+  tabActive: {
+    color: '#E8342A', borderBottomColor: '#E8342A',
+  },
+  tabContent: { padding: '14px 18px' },
+
+  helpBox: {
+    background: '#16161b', border: '1px solid #1f1f24',
+    borderRadius: 9, padding: '10px 14px',
+  },
+  helpRow: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    fontSize: 12, color: '#a1a1aa',
+    lineHeight: 2, fontWeight: 500,
+  },
+  helpDot: {
+    width: 4, height: 4, borderRadius: '50%',
+    background: '#E8342A', flexShrink: 0,
+  },
+
+  stepBox: {
+    background: '#16161b', border: '1px solid #1f1f24',
+    borderRadius: 9, padding: '11px 14px',
+    display: 'flex', flexDirection: 'column', gap: 9,
+    marginBottom: 10,
+  },
+  step: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    flexWrap: 'wrap',
+  },
+  stepLabel: {
+    fontSize: 9, fontWeight: 700, color: '#E8342A',
+    letterSpacing: '0.14em', minWidth: 44,
+  },
+  stepDesc: {
+    fontSize: 12, color: '#a1a1aa', flex: 1, minWidth: 0,
+  },
+  stepNum: {
+    width: 18, height: 18, borderRadius: '50%',
+    color: '#fff', display: 'inline-flex',
+    alignItems: 'center', justifyContent: 'center',
+    fontSize: 10, fontWeight: 700, flexShrink: 0,
+  },
+  ntStep: {
+    fontSize: 12, color: '#3b82f6',
+    marginBottom: 10, fontWeight: 500,
+    padding: '7px 12px', background: 'rgba(59,130,246,0.08)',
+    border: '1px solid rgba(59,130,246,0.2)', borderRadius: 7,
+  },
+  sliderGrid: {
+    display: 'flex', flexDirection: 'column', gap: 12,
+    marginTop: 12,
+  },
+  sectionLabel: {
+    fontSize: 10, fontWeight: 700, color: '#71717a',
+    letterSpacing: '0.14em', marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+
+  fabricRow: {
+    display: 'flex', gap: 8, alignItems: 'center',
+    marginBottom: 12,
+  },
+  swatch: {
+    width: 32, height: 32, borderRadius: 7,
+    border: '1px solid #2a2a31', flexShrink: 0,
+  },
+  select: {
+    flex: 1, background: '#16161b', border: '1px solid #2a2a31',
+    color: '#f5f5f7', padding: '9px 11px', borderRadius: 8,
+    fontSize: 12, fontFamily: 'inherit', outline: 'none',
+    minWidth: 0, cursor: 'pointer',
+  },
+
+  btnPrimary: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 7, padding: '10px 14px', borderRadius: 8,
+    fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+    border: 'none', background: '#E8342A', color: '#fff',
+    transition: 'all 0.15s', letterSpacing: '0.02em',
+    cursor: 'pointer',
+    boxShadow: '0 1px 3px rgba(232,52,42,0.3)',
+  },
+  btnSecondary: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 7, padding: '10px 14px', borderRadius: 8,
+    fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+    border: '1px solid #2a2a31', background: '#16161b',
+    color: '#f5f5f7', transition: 'all 0.15s', cursor: 'pointer',
+  },
+  btnGhost: {
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 6, padding: '9px 12px', borderRadius: 7,
+    fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+    cursor: 'pointer', border: '1px solid #2a2a31',
+    background: '#16161b', color: '#a1a1aa',
+    transition: 'all 0.15s',
+  },
+  btnDanger: {
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 6, padding: '9px 12px', borderRadius: 7,
+    fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+    cursor: 'pointer', border: '1px solid rgba(239,68,68,0.3)',
+    background: 'transparent', color: '#ef4444',
+    transition: 'all 0.15s',
+  },
+  btnDangerOutline: {
+    width: '100%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 7, padding: '10px 14px', borderRadius: 8,
+    fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+    cursor: 'pointer', border: '1px solid rgba(239,68,68,0.3)',
+    background: 'transparent', color: '#ef4444',
+    transition: 'all 0.15s',
+  },
 }
