@@ -1,10 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// ログイン不要なパス
-const PUBLIC_PATHS = ['/login', '/pricing', '/auth/callback']
+const PUBLIC_PATHS = ['/login', '/pricing', '/auth/callback', '/lp']
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -35,13 +34,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // ログイン済みでloginページにアクセスしたらダッシュボードへ
   if (session && pathname === '/login') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 初回ログイン時の必須項目チェック
-  // display_name または company_name が未設定なら /settings/account へ誘導
   if (session && !isPublic && !pathname.startsWith('/settings/account')) {
     const { data: profile } = await supabase
       .from('profiles')
